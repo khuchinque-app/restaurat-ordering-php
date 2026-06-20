@@ -1,0 +1,12 @@
+I found the function you need to delete. It's the Order Checker / Validator in script.js, Section 18:
+Lines to remove: The entire SECTION 18 block, from the comment header down to the closing }); of the checkBtn.onclick handler.
+Specifically delete these variable declarations and functions:
+checkerInput
+checkBtn
+clearBtn
+resultDiv
+escapeHtml(text)
+clearBtn.onclick
+checkBtn.onclick
+Also delete from index.html:
+The entire <div class="checker-container">...</div> block inside the left sidebar (contains the checkerInput div, Check Orders button, Clear button, and checkerResult div)

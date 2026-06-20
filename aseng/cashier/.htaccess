@@ -1,0 +1,11 @@
+# Redirect direct requests to index.html to the auth wrapper
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.html$ index.php [R=302,L]
+</IfModule>
+
+# Also protect the database if someone copies it here by accident
+<Files "database.db">
+    Require all denied
+</Files>

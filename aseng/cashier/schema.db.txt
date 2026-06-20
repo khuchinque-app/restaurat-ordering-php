@@ -1,0 +1,47 @@
+-- =============================================================================
+-- TOOLS RESTO & DELIVERY - Database Schema
+-- =============================================================================
+-- Run manually:  sqlite3 database.db < schema.sql
+-- Or let server.py create it automatically on first run.
+-- =============================================================================
+
+-- Completed / finished orders (moved from active → finished panel)
+CREATE TABLE IF NOT EXISTS finished_orders (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_no      TEXT NOT NULL,
+    customer_name TEXT,
+    address       TEXT,
+    total         INTEGER,
+    payment_type  TEXT,          -- 'CASH' or 'ABA'
+    plain_text    TEXT,          -- raw receipt text
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Deleted orders — permanently archived when any order is deleted
+-- (from any container: pending, delivery, finished)
+CREATE TABLE IF NOT EXISTS deleted_orders (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_no      TEXT,
+    customer_name TEXT,
+    address       TEXT,
+    notes         TEXT,
+    total         INTEGER,
+    payment_type  TEXT,          -- 'CASH' or 'ABA'
+    location      TEXT,          -- 'Pending', 'Finished', driver name, etc.
+    plain_text    TEXT,          -- raw receipt text
+    html_content  TEXT,          -- HTML receipt for bill preview
+    is_checked    INTEGER DEFAULT 0,   -- 1 = was checked/done before deletion
+    deleted_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- App settings (key-value store for misc config)
+CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+);
+
+-- Indexes for common query patterns
+CREATE INDEX IF NOT EXISTS idx_finished_created  ON finished_orders (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_deleted_deleted   ON deleted_orders  (deleted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_deleted_order_no  ON deleted_orders  (order_no);
+CREATE INDEX IF NOT EXISTS idx_deleted_customer  ON deleted_orders  (customer_name);

@@ -1,0 +1,95 @@
+/* ===== Superadmin Layout (Hot Red Theme) ===== */
+.sa-body { background: #1c1917; }
+.sa-layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+/* ===== Sidebar ===== */
+.sa-sidebar {
+    background: linear-gradient(180deg, #450a0a 0%, #7f1d1d 100%);
+    color: #fca5a5;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+.sa-logo {
+    padding: 1.5rem 1.25rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fca5a5;
+    border-bottom: 1px solid #991b1b;
+    letter-spacing: .02em;
+}
+.sa-nav { flex: 1; display: flex; flex-direction: column; padding: .75rem 0; }
+.sa-nav a {
+    padding: .7rem 1.25rem;
+    color: #fca5a5;
+    font-size: .875rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    transition: all .15s;
+    border-left: 3px solid transparent;
+}
+.sa-nav a:hover { background: rgba(255,255,255,.07); color: #fee2e2; text-decoration: none; }
+.sa-nav a.active { background: rgba(255,255,255,.1); color: #fff; border-left-color: #ef4444; font-weight: 600; }
+.sa-nav hr { border-color: #991b1b; margin: .5rem 1rem; }
+.sa-user { padding: 1rem 1.25rem; font-size: .8rem; color: #f87171; border-top: 1px solid #991b1b; }
+
+/* ===== Main ===== */
+.sa-main { display: flex; flex-direction: column; background: #f8fafc; }
+.sa-topbar {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.sa-topbar h1 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0; }
+.sa-topbar-right { font-size: .875rem; color: #64748b; }
+.sa-content { padding: 1.5rem; flex: 1; }
+
+/* ===== Stats ===== */
+.sa-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.sa-stat {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.sa-stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.sa-stat-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: #64748b; font-weight: 600; }
+.sa-stat-value { font-size: 1.75rem; font-weight: 800; color: #1e293b; line-height: 1.2; }
+
+/* ===== Notification Badge Animation ===== */
+#notifUnreadBadge {
+    animation: notif-pulse 2s infinite;
+}
+@keyframes notif-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .6; }
+}
+
+/* ===== Tables ===== */
+.sa-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.05); margin-bottom: 1.25rem; overflow: hidden; }
+.sa-card-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; }
+.sa-card-header h2 { font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0; }
+.sa-card-body { padding: 1.25rem; }
+
+/* ===== Restaurant Badges ===== */
+.restaurant-active   { background: #dcfce7; color: #166534; padding: .2rem .6rem; border-radius: 9999px; font-size: .75rem; font-weight: 600; }
+.restaurant-inactive { background: #fee2e2; color: #991b1b; padding: .2rem .6rem; border-radius: 9999px; font-size: .75rem; font-weight: 600; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .sa-layout { grid-template-columns: 1fr; }
+    .sa-sidebar { height: auto; position: static; }
+    .sa-stats { grid-template-columns: 1fr 1fr; }
+}

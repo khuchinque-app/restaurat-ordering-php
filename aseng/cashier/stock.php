@@ -1,0 +1,400 @@
+<?php
+// ============================================================
+// STOCK PAGE - NO DATABASE, standalone mode
+// ============================================================
+
+$action = $_GET['action'] ?? '';
+
+// ── API: Save stock to JSON file ──────────────────────────
+if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+    $input = json_decode(file_get_contents('php://input'), true);
+    try {
+        $file = __DIR__ . '/stock_data.json';
+        $existing = [];
+        if (file_exists($file)) {
+            $existing = json_decode(file_get_contents($file), true) ?? [];
+        }
+
+        if (!empty($input['id'])) {
+            // Update existing
+            foreach ($existing as &$item) {
+                if ($item['id'] == $input['id']) {
+                    $item = array_merge($item, $input);
+                    break;
+                }
+            }
+        } else {
+            // Add new
+            $newId = 1;
+            foreach ($existing as $item) {
+                if ($item['id'] >= $newId) $newId = $item['id'] + 1;
+            }
+            $input['id'] = $newId;
+            $input['last_updated'] = date('Y-m-d H:i:s');
+            $existing[] = $input;
+        }
+
+        file_put_contents($file, json_encode($existing, JSON_PRETTY_PRINT));
+        echo json_encode(['status' => 'ok']);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ── API: Delete stock item ────────────────────────────────
+if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+    $input = json_decode(file_get_contents('php://input'), true);
+    try {
+        $file = __DIR__ . '/stock_data.json';
+        $existing = [];
+        if (file_exists($file)) {
+            $existing = json_decode(file_get_contents($file), true) ?? [];
+        }
+        $existing = array_filter($existing, function($item) use ($input) {
+            return $item['id'] != $input['id'];
+        });
+        $existing = array_values($existing);
+        file_put_contents($file, json_encode($existing, JSON_PRETTY_PRINT));
+        echo json_encode(['status' => 'ok']);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ── API: List all stock items ─────────────────────────────
+if ($action === 'list') {
+    header('Content-Type: application/json');
+    $file = __DIR__ . '/stock_data.json';
+    if (file_exists($file)) {
+        echo file_get_contents($file);
+    } else {
+        echo json_encode([]);
+    }
+    exit;
+}
+
+// ── Load stock data for page render ────────────────────────
+$stockItems = [];
+$categories = [];
+$file = __DIR__ . '/stock_data.json';
+if (file_exists($file)) {
+    $stockItems = json_decode(file_get_contents($file), true) ?? [];
+    $categories = array_unique(array_filter(array_column($stockItems, 'category')));
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management - ASENG</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+        :root { --green: #4CAF50; --green-dim: #2e7d32; --bg: #111111; --card: #161616; --card2: #1e1e1e; --border: #2a2a2a; --text: #ffffff; --text-dim: #888888; --red: #ef5350; --orange: #FF9800; --yellow: #FFC107; --blue: #00bcff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; gap: 16px; display: flex; flex-direction: column; }
+        .app-bar { background: #0c0c0c; border-bottom: 2px solid #00ff00; padding: 10px 20px; font-family: monospace; display: flex; justify-content: space-between; align-items: center; color: #ccc; font-size: 13px; position: sticky; top: 0; z-index: 99999; }
+        .app-bar a { color: #00ff00; text-decoration: none; margin-left: 15px; font-weight: bold; }
+        .page-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: var(--card); padding: 16px 20px; border-radius: 10px; border: 1px solid var(--border); margin-top: 16px; }
+        .page-header h1 { font-size: 1.4em; color: var(--green); flex: 1; }
+        .back-btn { background: var(--card2); color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 14px; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .back-btn:hover { background: var(--green); color: #000; border-color: var(--green); }
+        .btn { background: var(--green); color: #000; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; transition: all 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-blue { background: var(--blue); color: #fff; }
+        .stats-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+        .stat-box { flex: 1; min-width: 140px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; text-align: center; }
+        .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; }
+        .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.3em; font-weight: 700; color: var(--text); }
+        .stat-value.green { color: var(--green); } .stat-value.red { color: var(--red); } .stat-value.yellow { color: var(--yellow); } .stat-value.blue { color: var(--blue); }
+        .table-wrapper { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: auto; flex: 1; margin-top: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead tr { background: var(--card2); border-bottom: 2px solid var(--border); }
+        th { padding: 12px 14px; text-align: left; color: var(--green); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+        tbody tr:hover { background: var(--card2); }
+        tbody tr.low-stock { background: rgba(239, 83, 80, 0.08); }
+        td { padding: 11px 14px; vertical-align: middle; color: var(--text); font-size: 13px; }
+        td:first-child { color: var(--text-dim); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-ok { background: rgba(76,175,80,0.15); color: var(--green); }
+        .badge-low { background: rgba(239,83,80,0.15); color: var(--red); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; }
+        .form-group input, .form-group select { background: var(--card2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: 'Syne', sans-serif; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--green); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { color: var(--green); font-size: 1.2em; }
+        .modal-close { background: var(--red); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 14px; }
+        .actions { display: flex; gap: 8px; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .empty-msg { padding: 60px; text-align: center; color: var(--text-dim); font-size: 16px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-bar">
+        <div>
+            <span style="color:#00ff00;font-weight:bold;">⚡ ASENG CASHIER</span>
+            <span style="margin-left:12px;color:#888;">Standalone mode | No DB</span>
+            <a href="./index.php">🏡 Cashier</a>
+            <a href="./history.php">📜 History</a>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <a href="./index.php" class="back-btn">← Back</a>
+        <h1>📦 Stock Management</h1>
+        <button class="btn" onclick="openModal()">+ Add Item</button>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-box">
+            <span class="stat-label">Total Items</span>
+            <span class="stat-value" id="statTotal">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Categories</span>
+            <span class="stat-value blue" id="statCategories">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Low Stock</span>
+            <span class="stat-value red" id="statLow">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Total Value</span>
+            <span class="stat-value yellow" id="statValue">0</span>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="stockTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Min Level</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Supplier</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="stockBody"></tbody>
+        </table>
+        <div id="emptyMsg" class="empty-msg" style="display:none;">No stock items found.</div>
+    </div>
+
+    <!-- Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Stock Item</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <form id="itemForm" onsubmit="return saveItem(event)">
+                <input type="hidden" id="itemId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="itemName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="itemCategory" list="categoryList">
+                        <datalist id="categoryList">
+                            <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo htmlspecialchars($cat); ?>">
+                            <?php endforeach; ?>
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="itemQuantity" min="0" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="itemUnit" value="pcs">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Level</label>
+                        <input type="number" id="itemMinLevel" min="0" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Price (Riel)</label>
+                        <input type="number" id="itemPrice" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier</label>
+                        <input type="text" id="itemSupplier">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Notes</label>
+                        <input type="text" id="itemNotes">
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-red" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let items = <?= json_encode($stockItems, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
+        let editingId = null;
+
+        function renderTable() {
+            const tbody = document.getElementById('stockBody');
+            const emptyMsg = document.getElementById('emptyMsg');
+
+            if (items.length === 0) {
+                tbody.innerHTML = '';
+                emptyMsg.style.display = 'block';
+                updateStats();
+                return;
+            }
+            emptyMsg.style.display = 'none';
+
+            tbody.innerHTML = items.map((it, i) => {
+                const isLow = parseInt(it.quantity) <= parseInt(it.min_level);
+                return `<tr class="${isLow ? 'low-stock' : ''}">
+                    <td>${i + 1}</td>
+                    <td><strong>${escHtml(it.name)}</strong></td>
+                    <td>${escHtml(it.category || '—')}</td>
+                    <td>${it.quantity}</td>
+                    <td>${escHtml(it.unit || 'pcs')}</td>
+                    <td>${it.min_level}</td>
+                    <td><span class="badge ${isLow ? 'badge-low' : 'badge-ok'}">${isLow ? '⚠️ LOW' : '✅ OK'}</span></td>
+                    <td>${parseInt(it.price).toLocaleString('id-ID')}</td>
+                    <td>${escHtml(it.supplier || '—')}</td>
+                    <td class="actions">
+                        <button class="btn btn-blue btn-sm" onclick="editItem(${it.id})">✎</button>
+                        <button class="btn btn-red btn-sm" onclick="deleteItem(${it.id})">🗑</button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = items.length;
+            const categories = new Set(items.map(i => i.category).filter(Boolean)).size;
+            const low = items.filter(i => parseInt(i.quantity) <= parseInt(i.min_level)).length;
+            const value = items.reduce((sum, i) => sum + (parseInt(i.quantity) * parseInt(i.price)), 0);
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statCategories').textContent = categories;
+            document.getElementById('statLow').textContent = low;
+            document.getElementById('statValue').textContent = value.toLocaleString('id-ID');
+        }
+
+        function openModal(id = null) {
+            editingId = id;
+            document.getElementById('modalTitle').textContent = id ? 'Edit Stock Item' : 'Add Stock Item';
+            document.getElementById('itemId').value = id || '';
+
+            if (id) {
+                const item = items.find(i => i.id == id);
+                if (item) {
+                    document.getElementById('itemName').value = item.name;
+                    document.getElementById('itemCategory').value = item.category || '';
+                    document.getElementById('itemQuantity').value = item.quantity;
+                    document.getElementById('itemUnit').value = item.unit || 'pcs';
+                    document.getElementById('itemMinLevel').value = item.min_level;
+                    document.getElementById('itemPrice').value = item.price;
+                    document.getElementById('itemSupplier').value = item.supplier || '';
+                    document.getElementById('itemNotes').value = item.notes || '';
+                }
+            } else {
+                document.getElementById('itemForm').reset();
+            }
+
+            document.getElementById('itemModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('itemModal').style.display = 'none';
+            editingId = null;
+        }
+
+        async function saveItem(e) {
+            e.preventDefault();
+            const data = {
+                id: document.getElementById('itemId').value || null,
+                name: document.getElementById('itemName').value,
+                category: document.getElementById('itemCategory').value,
+                quantity: parseInt(document.getElementById('itemQuantity').value) || 0,
+                unit: document.getElementById('itemUnit').value || 'pcs',
+                min_level: parseInt(document.getElementById('itemMinLevel').value) || 0,
+                price: parseInt(document.getElementById('itemPrice').value) || 0,
+                supplier: document.getElementById('itemSupplier').value,
+                notes: document.getElementById('itemNotes').value
+            };
+
+            try {
+                const res = await fetch('./stock.php?action=save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.status === 'ok') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown'));
+                }
+            } catch (err) {
+                alert('Failed to save item');
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('Delete this item?')) return;
+            try {
+                const res = await fetch('./stock.php?action=delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                const result = await res.json();
+                if (result.status === 'ok') {
+                    location.reload();
+                }
+            } catch (err) {
+                alert('Failed to delete item');
+            }
+        }
+
+        function editItem(id) {
+            openModal(id);
+        }
+
+        function escHtml(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        document.addEventListener('DOMContentLoaded', renderTable);
+        document.addEventListener('click', e => {
+            if (e.target === document.getElementById('itemModal')) closeModal();
+        });
+    </script>
+</body>
+</html>

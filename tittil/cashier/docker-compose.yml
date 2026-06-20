@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  cashier-app:
+    image: php:8.1-cli
+    container_name: tittil-cashier
+    restart: always
+    ports:
+      - "9001:9001"
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    command: php -S 0.0.0.0:9001 -t /var/www/html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  default:
+    name: tittil-network

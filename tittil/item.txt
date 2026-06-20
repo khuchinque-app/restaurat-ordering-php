@@ -1,0 +1,12 @@
+# Tittil — menu items
+# One item per line, comma-separated. Lines starting with # are ignored.
+# Columns:  category , name , price , stock , lowStock , image
+#   price    = number (e.g. 4.50)
+#   stock    = whole number, or leave blank for unlimited
+#   lowStock = low-stock alert threshold (default 5 if blank)
+#   image    = filename only (goes in /tittil/assets/images/), or leave blank
+#
+# Example (delete these and add your real items):
+Cakes, Chocolate Slice, 4.50, 30, 5, choc-slice.jpg
+Cakes, Cheesecake, 5.00, 25, 5, cheesecake.jpg
+Drinks, Iced Latte, 3.50, 80, 10, iced-latte.jpg

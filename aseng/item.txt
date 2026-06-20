@@ -1,0 +1,12 @@
+# Aseng — menu items
+# One item per line, comma-separated. Lines starting with # are ignored.
+# Columns:  category , name , price , stock , lowStock , image
+#   price    = number (e.g. 8.50)
+#   stock    = whole number, or leave blank for unlimited
+#   lowStock = low-stock alert threshold (default 5 if blank)
+#   image    = filename only (goes in /aseng/assets/images/), or leave blank
+#
+# Example (delete these and add your real items):
+Mains, Nasi Goreng, 8.50, 40, 5, nasi-goreng.jpg
+Mains, Chicken Satay, 9.00, 30, 5, chicken-satay.jpg
+Drinks, Teh Tarik, 2.00, 100, 10, teh-tarik.jpg

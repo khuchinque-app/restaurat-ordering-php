@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Zone.Identifier files (if any appear)
+*:Zone.Identifier
+database.db
+catatan-gudang/
+*.pyc
+__pycache__/

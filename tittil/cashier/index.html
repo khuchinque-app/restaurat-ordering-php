@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOOLS RESTO <title>TOOLS RESTO & DELIVERY - TITTIL</title> DELIVERY - TITTIL</title>
+    <link rel="icon" type="image/x-icon" href="/static/asset/favicon.ico">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT SIDEBAR: Pending Orders & Checker -->
+        <aside class="sidebar left">
+            <h3>📲 Pending Orders</h3>
+            <div id="historyContainer"></div>
+
+            <div class="checker-container">
+                <h3>📋 Order List Checker</h3>
+                <p>Paste orders list below!</p>
+                <div id="checkerInput" contenteditable="true" class="text-area"></div>
+                <button id="checkOrders" class="action-btn" style="background: #4CAF50;">✅ Check Orders</button>
+                <button id="clearChecker" class="action-btn" style="background: #ff4d4d;">🗑 Clear</button>
+                <div id="checkerResult"></div>
+            </div>
+        </aside>
+
+        <!-- MAIN CENTER: Bill Editor & Preview -->
+        <main class="main">
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    📜 Receipt & Bill Maker
+                </div>
+
+                <input id="customerName" type="text" placeholder="Customer Name">
+                <input id="customerAddress" type="text" placeholder="Customer Address">
+                <textarea id="notes" placeholder="Notes..."></textarea>
+
+                <div id="menuInputContainer"></div>
+                <button type="button" id="addMenuBtn" onclick="addMenuRow()">+ Add Menu</button>
+                <textarea id="inputBox" style="display:none;"></textarea>
+
+                <button class="action-btn" onclick="processOrder()">Accept Receipt!❇️</button>
+                <button class="action-btn" onclick="copyReceipt()" style="background: #27ae60;">Copy Receipt❗️</button>
+            </div>
+
+            <div id="outputBox">
+                <div class="bill-logo" style="text-align: center; margin-bottom: 15px;">
+                    <img src="/asset/image1.png" alt="Saung Abah Logo" style="max-height: 180px; width: auto;">
+                </div>
+                <div id="billContent"></div>
+                <div class="bill-gratitude">
+                    <div class="gratitude-line">TERIMA KASIH ATAS PESANANNYA</div>
+                    <div class="gratitude-line">SELAMAT MENIKMATI</div>
+                    <div class="gratitude-line">DITUNGGU NEXT ORDERNYA YAH!</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- DELIVERY SIDEBAR (Driver Panels) -->
+        <aside class="sidebar delivery">
+            <h3>🚚 Delivery Process</h3>
+
+            <div id="thornContainer" class="driver-panel">
+                <h4>THORN</h4>
+                <button class="edit-driver-btn" onclick="editDriverName('thorn')">📝</button>
+            </div>
+
+            <div id="domContainer" class="driver-panel">
+                <h4>DOM</h4>
+                <button class="edit-driver-btn" onclick="editDriverName('dom')">📝</button>
+            </div>
+
+            <div id="pozzalContainer" class="driver-panel">
+                <h4>POZZAL</h4>
+                <button class="edit-driver-btn" onclick="editDriverName('pozzal')">📝</button>
+            </div>
+
+            <div id="etcContainer" class="driver-panel">
+                <h4>ETC</h4>
+                <button class="edit-driver-btn" onclick="editDriverName('etc')">📝</button>
+            </div>
+
+            <div id="extraContainer" class="driver-panel">
+                <h4>EXTRA</h4>
+                <button class="edit-driver-btn" onclick="editDriverName('extra')">📝</button>
+            </div>
+        </aside>
+
+        <!-- FINISHED ORDERS SIDEBAR -->
+        <aside class="sidebar finished">
+            <h3>✅ Completed Orders</h3>
+            <div id="finishedContainer"></div>
+            <button class="action-btn" style="margin-top: 20px; background: #27ae60;" onclick="exportFinishedOrders()">💾 Download Order</button>
+            <button class="action-btn" style="margin-top: 8px; background: #c0392b;" onclick="deleteAllFinishedOrders()">🗑️ Delete All Orders</button>
+        </aside>
+
+        <!-- RIGHT SIDEBAR: Clock, Order No, Calculator, Totals, Stock -->
+        <aside class="sidebar right">
+            <div class="info-panel">
+                <div id="liveTime" class="big-time">--:--</div>
+                <div id="liveDate">Loading Date...</div>
+            </div>
+
+            <div class="info-panel">
+                <div>Order No:</div>
+                <div id="displayOrderNo" class="order-no" onclick="manualResetOrderNo()" title="Click to manually set number">000</div>
+                <div style="font-size: 10px; opacity: 0.5;">(Click number to reset)</div>
+            </div>
+
+            <h3>Calculator</h3>
+            <div class="calc">
+                <input type="text" id="calcDisplay" class="calc-display" readonly>
+                <div class="calc-grid">
+                    <button class="calc-btn" onclick="calcAppend('7')">7</button>
+                    <button class="calc-btn" onclick="calcAppend('8')">8</button>
+                    <button class="calc-btn" onclick="calcAppend('9')">9</button>
+                    <button class="calc-btn op" onclick="calcAppend('/')">/</button>
+
+                    <button class="calc-btn" onclick="calcAppend('4')">4</button>
+                    <button class="calc-btn" onclick="calcAppend('5')">5</button>
+                    <button class="calc-btn" onclick="calcAppend('6')">6</button>
+                    <button class="calc-btn op" onclick="calcAppend('*')">*</button>
+
+                    <button class="calc-btn" onclick="calcAppend('1')">1</button>
+                    <button class="calc-btn" onclick="calcAppend('2')">2</button>
+                    <button class="calc-btn" onclick="calcAppend('3')">3</button>
+                    <button class="calc-btn op" onclick="calcAppend('-')">-</button>
+
+                    <button class="calc-btn" onclick="calcAppend('0')">0</button>
+                    <button class="calc-btn" onclick="calcAppend('.')">.</button>
+                    <button class="calc-btn" onclick="calcClear()">C</button>
+                    <button class="calc-btn op" onclick="calcAppend('+')">+</button>
+
+                    <button class="calc-btn eq" onclick="calcSolve()">=</button>
+                </div>
+                <div id="calcHistory"></div>
+            </div>
+
+            <h3>💰 Total Cash-in</h3>
+            <div class="summary-panel">
+                <div>💵 CASH (RIEL): <span id="totalUnarchived">0</span></div>
+                <div>💳 ABA (RIEL): <span id="totalArchived">0</span></div>
+            </div>
+
+            <button class="action-btn" style="background: #f39c12; margin-top: 20px;" onclick="goToStock()">📦 Manage Stock</button>
+
+            <div class="All-History" style="margin-top: 20px; width: 100%;">
+                <button class="action-btn" style="background: #2c3e50; font-weight: bold;" onclick="goToAllHistory()">📜 All History</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Hidden file input for image upload -->
+    <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Upload Image</h3>
+            <p>Choose an option:</p>
+            <button id="modalPasteBtn">📋 Paste from Clipboard</button>
+            <button id="modalFileBtn">📁 Choose File</button>
+            <button id="modalCloseBtn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Floating Image Preview -->
+    <div id="floatingImagePreview" style="display: none;">
+        <img src="" alt="Preview" id="previewImg">
+        <button id="floatingDeleteBtn" title="Delete image">✕</button>
+    </div>
+</body>
+</html>

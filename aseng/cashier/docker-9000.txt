@@ -1,0 +1,87 @@
+@echo off
+setlocal EnableDelayedExpansion
+
+:: =============================================================================
+:: ASENG-KASIR Launcher — Port 8081
+:: =============================================================================
+:: Runs inside WSL. Kills gracefully on close.
+:: =============================================================================
+
+set "WSL_DISTRO=Ubuntu"
+set "PROJECT_DIR=/home/adminaseng/kasir-baru/ASENG-KASIR"
+set "SERVER_FILE=server.py"
+set "PORT=8081"
+set "PYTHON_CMD=python3"
+set "UNIQUE_TAG=ASENG-KASIR-8081"
+
+:: --- STEP 1: KILL ANY EXISTING SERVER ON PORT 8081 ---------------------------
+echo [1/4] Killing stale server on port %PORT%...
+wsl -d %WSL_DISTRO% -e bash -c "pkill -f '%PYTHON_CMD% %SERVER_FILE%' 2>/dev/null; fuser -k %PORT%/tcp 2>/dev/null; sleep 1"
+echo        Done.
+
+:: --- STEP 2: START SERVER IN BACKGROUND -------------------------------------
+echo [2/4] Starting ASENG-KASIR server...
+wsl -d %WSL_DISTRO% -e bash -c "cd %PROJECT_DIR% && nohup %PYTHON_CMD% %SERVER_FILE% > /dev/null 2>&1 &"
+
+:: --- STEP 3: WAIT FOR SERVER READY ------------------------------------------
+echo [3/4] Waiting for server on port %PORT%...
+set /a attempts=0
+:WAIT_LOOP
+timeout /t 1 /nobreak >nul
+wsl -d %WSL_DISTRO% -e bash -c "netstat -tlnp 2>/dev/null | grep ':%PORT%' | grep LISTEN" >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    set /a attempts+=1
+    if !attempts! gtr 20 (
+        echo [ERROR] Server failed to start. Check WSL and project path.
+        pause
+        exit /b 1
+    )
+    goto WAIT_LOOP
+)
+echo        Server ready!
+
+:: --- STEP 4: OPEN BROWSER ---------------------------------------------------
+echo [4/4] Opening browser...
+start "" "http://localhost:%PORT%"
+
+echo.
+echo ╔══════════════════════════════════════════════════════════════════════╗
+echo ║  ASENG-KASIR is RUNNING on http://localhost:%PORT%                  ║
+echo ║                                                                      ║
+echo ║  • Close this terminal window to STOP the server.                    ║
+echo ║  • Or press ENTER below to stop manually.                            ║
+echo ╚══════════════════════════════════════════════════════════════════════╝
+echo.
+
+:: --- STEP 5: KEEP ALIVE + GRACEFUL KILL ON CLOSE ----------------------------
+set "WATCHER_VBS=%TEMP%\%UNIQUE_TAG%_watcher_%RANDOM%.vbs"
+(
+    echo Set WshShell = CreateObject("WScript.Shell"^)
+    echo Set oExec = WshShell.Exec("cmd /c echo waiting"^)
+    echo Do While oExec.Status = 0
+    echo     WScript.Sleep 500
+    echo Loop
+    echo ' Main CMD closed — kill the server
+    echo WshShell.Run "wsl -d %WSL_DISTRO% -e bash -c ""pkill -f '%PYTHON_CMD% %SERVER_FILE%' 2>/dev/null; fuser -k %PORT%/tcp 2>/dev/null""", 0, True
+    echo Set fso = CreateObject("Scripting.FileSystemObject"^)
+    echo fso.DeleteFile "%WATCHER_VBS%"
+) > "%WATCHER_VBS%"
+start /MIN wscript.exe "%WATCHER_VBS%"
+
+:: Keep window open
+:KEEP_ALIVE
+set /p USER_INPUT="Press ENTER to stop server, or type 'kill': " <nul
+set /p USER_INPUT=""
+if /I "%USER_INPUT%"=="kill" goto CLEANUP
+if /I "%USER_INPUT%"=="stop" goto CLEANUP
+if /I "%USER_INPUT%"=="exit" goto CLEANUP
+goto KEEP_ALIVE
+
+:CLEANUP
+echo.
+echo [STOPPING] Killing ASENG-KASIR server...
+wsl -d %WSL_DISTRO% -e bash -c "pkill -f '%PYTHON_CMD% %SERVER_FILE%' 2>/dev/null; fuser -k %PORT%/tcp 2>/dev/null"
+if exist "%WATCHER_VBS%" del "%WATCHER_VBS%" >nul 2>&1
+echo [DONE] Server stopped. Safe to restart.
+timeout /t 2 >nul
+exit /b 0
