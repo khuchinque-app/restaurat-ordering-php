@@ -1,7 +1,0 @@
-# Bell — Comfort Food Menu
-# Columns: category , name , price , stock , lowStock , image
-Bowls,Teriyaki Chicken Bowl,4.50,30,5,mains_01.jpg
-Bowls,Beef Bulgogi Bowl,5.00,25,5,mains_02.jpg
-Bowls,Veggie Rice Bowl,3.50,40,5,mains_03.jpg
-Soups,Tom Yum Soup,3.00,35,5,soup_01.jpg
-Drinks,Lychee Tea,1.20,90,10,drink_01.jpg
