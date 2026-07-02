@@ -4,7 +4,9 @@ include dirname(__DIR__) . '/includes/admin_header.php';
 require_once dirname(__DIR__) . '/db.php';
 require_once dirname(__DIR__) . '/includes/activity.php';
 
-$restaurant = get_restaurant();
+$restaurant = !empty($current_user['restaurantId'])
+    ? db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']])
+    : null;
 $rid = $restaurant['id'] ?? null;
 $slug = $restaurant['slug'] ?? '';
 
@@ -89,7 +91,7 @@ $items = $rid ? db_query(
                 <?php if ($item['description']): ?><br><small class="text-muted"><?= htmlspecialchars(mb_strimwidth($item['description'], 0, 50, '...')) ?></small><?php endif; ?>
             </td>
             <td><?= htmlspecialchars($item['categoryName']) ?></td>
-            <td>$<?= number_format((float)$item['price'], 2) ?></td>
+            <td>$<?= number_format((float)$item['price'], 2) ?> <small style="color:#94a3b8">· <?= number_format((float)$item['price'] * 4000) ?> KHR</small></td>
             <td class="<?= $item['stockQuantity'] !== null && $item['stockQuantity'] <= $item['lowStockThreshold'] ? 'text-warn' : '' ?>">
                 <?= $item['stockQuantity'] !== null ? (int)$item['stockQuantity'] : '∞' ?>
             </td>

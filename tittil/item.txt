@@ -1,12 +1,60 @@
 # Tittil — menu items
-# One item per line, comma-separated. Lines starting with # are ignored.
+# Generated from tittil/cashier/menu.txt — June 29, 2026
+# Prices in USD (converted from KHR at 4000 rate)
 # Columns:  category , name , price , stock , lowStock , image
-#   price    = number (e.g. 4.50)
-#   stock    = whole number, or leave blank for unlimited
-#   lowStock = low-stock alert threshold (default 5 if blank)
-#   image    = filename only (goes in /tittil/assets/images/), or leave blank
 #
-# Example (delete these and add your real items):
-Cakes, Chocolate Slice, 4.50, 30, 5, choc-slice.jpg
-Cakes, Cheesecake, 5.00, 25, 5, cheesecake.jpg
-Drinks, Iced Latte, 3.50, 80, 10, iced-latte.jpg
+Pempek, Adaan / Bulat, 3.50, 50, 5
+Pempek, Kapal Selam, 3.50, 40, 5
+Pempek, Kapal Selam Kuah, 3.50, 40, 5
+Pempek, Kapal Selam Telur Bebek, 4.00, 30, 5
+Pempek, Keriting, 3.50, 50, 5
+Pempek, Laksan, 3.50, 40, 5
+Pempek, Lenggang Telur Ayam, 3.00, 40, 5
+Pempek, Lenggang Telur Bebek, 3.50, 30, 5
+Pempek, Lenjer / Balok, 3.50, 50, 5
+Pempek, Lenjer mix Adaan, 3.50, 40, 5
+Pempek, Model Telur, 3.50, 40, 5
+Pempek, Model Telur Tekwan, 4.00, 30, 5
+Pempek, Otak-Otak, 4.00, 30, 5
+Pempek, Panggang, 4.00, 30, 5
+Pempek, Pempek Keju, 4.00, 30, 5
+Pempek, Tahu, 3.50, 50, 5
+Pempek, keriting 1pcs, 0.75, 100, 10
+Pempek, tahu 1pcs, 0.75, 100, 10
+Pempek, Lenjer Kecil, 3.50, 50, 5
+Pempek, Celimpungan, 3.50, 30, 5
+Pempek, Model Ikan, 3.50, 30, 5
+Pempek, Model Ikan Tekwan, 4.00, 30, 5
+Mains, Mix, 6.25, 20, 5
+Mains, Mix Komplit, 8.00, 15, 5
+Mains, Mix Spesial, 5.00, 20, 5
+Mains, Nasi Pindang Patin, 3.50, 30, 5
+Mains, Ayam Geprek, 3.50, 30, 5
+Mains, Pecel Ayam, 3.00, 30, 5
+Mains, Pecel Lele, 3.00, 30, 5
+Mains, Soto Lamongan, 3.00, 30, 5
+Mains, Soto Tangkar, 4.00, 20, 5
+Mains, Rujak Mie, 3.00, 30, 5
+Mains, Tekwan, 3.00, 30, 5
+Ricebowl, Ricebowl Chicken Katsu BBQ, 3.00, 30, 5
+Ricebowl, Ricebowl Chicken Katsu MAYO, 3.00, 30, 5
+Ricebowl, Ricebowl Chicken Katsu TERIYAKI, 3.00, 30, 5
+Ricebowl, Ricebowl Chicken Katsu Sambal Matah, 3.00, 30, 5
+Sides, Cuko, 0.50, 100, 10
+Sides, Nasi Putih, 0.50, 100, 10
+Sides, Indomie Goreng, 0.75, 80, 10
+Sides, Indomie Soto, 0.75, 80, 10
+Sides, Indomie Kari, 0.75, 80, 10
+Drinks, Air Mineral, 0.75, 100, 10
+Drinks, Es Cappucino, 1.25, 60, 10
+Drinks, Es Jeruk, 1.50, 60, 10
+Drinks, Es Lemon Tea, 1.25, 60, 10
+Drinks, Es Tea, 0.75, 100, 10
+Drinks, Es Teh Tarik, 1.25, 60, 10
+Drinks, Es Oldtown Hazelnut Coffee, 1.25, 50, 10
+Drinks, Es Oldtown Extra Rich Coffee, 1.25, 50, 10
+Drinks, Es Oldtown Classic Coffee, 1.25, 50, 10
+Drinks, Kukubima Drink, 1.00, 60, 10
+Drinks, Thai Tea, 1.00, 60, 10
+Sides, Indomie Kari, 0.75, 80, 10
+Drinks, Air Mineral, 0.75, 100, 10

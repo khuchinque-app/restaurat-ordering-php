@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS "Order" (
     customerName TEXT,
     customerPhone TEXT,
     customerId   TEXT,
+    shippingFee  TEXT NOT NULL DEFAULT '0',
     restaurantId TEXT NOT NULL,
     completedAt  TEXT,
     createdAt    TEXT NOT NULL DEFAULT (datetime(\'now\')),
@@ -191,6 +192,14 @@ CREATE TABLE IF NOT EXISTS OrderCounter (
     currentNum   INTEGER NOT NULL DEFAULT 0,
     updatedAt    TEXT NOT NULL DEFAULT (datetime(\'now\')),
     FOREIGN KEY (restaurantId) REFERENCES Restaurant(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS CustomerPresence (
+    senderName   TEXT NOT NULL,
+    restaurantId TEXT NOT NULL,
+    lastSeenAt   TEXT NOT NULL DEFAULT (datetime('now')),
+    chatOpen     INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (senderName, restaurantId)
 );
 
 CREATE TABLE IF NOT EXISTS UserPresence (

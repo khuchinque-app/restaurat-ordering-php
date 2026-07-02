@@ -1,0 +1,22 @@
+# Database
+data/restaurant.db
+data/*.db
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Environment
+.env
+.jwt_secret
+
+# Logs
+*.log
+log.md
+superadmin-audit-report.md
+
+# Backup files
+*.bak

@@ -3,7 +3,9 @@ require_once dirname(__DIR__) . '/db.php';
 $page_title = 'Orders';
 include dirname(__DIR__) . '/includes/admin_header.php';
 
-$restaurant = get_restaurant();
+$restaurant = !empty($current_user['restaurantId'])
+    ? db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']])
+    : null;
 $rid = $restaurant['id'] ?? null;
 
 $status_filter = $_GET['status'] ?? '';

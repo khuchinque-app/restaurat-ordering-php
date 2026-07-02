@@ -4,7 +4,7 @@ $page_title = 'Dashboard';
 include dirname(__DIR__) . '/includes/superadmin_header.php';
 
 // System-wide stats
-$total_restaurants = (int)(db_fetch('SELECT COUNT(*) AS n FROM Restaurant')['n'] ?? 0);
+$total_restaurants = (int)(db_fetch('SELECT COUNT(*) AS n FROM Restaurant WHERE isActive = 1')['n'] ?? 0);
 $active_restaurants = (int)(db_fetch('SELECT COUNT(*) AS n FROM Restaurant WHERE isActive = 1')['n'] ?? 0);
 $total_users   = (int)(db_fetch('SELECT COUNT(*) AS n FROM User WHERE role = "CUSTOMER"')['n'] ?? 0);
 $total_admins  = (int)(db_fetch('SELECT COUNT(*) AS n FROM User WHERE role IN ("ADMIN","SUPERADMIN")')['n'] ?? 0);
@@ -24,6 +24,7 @@ $restaurants = db_query(
             (SELECT COALESCE(SUM(CAST(totalAmount AS REAL)),0) FROM "Order" WHERE restaurantId = r.id AND status IN ("COMPLETED","READY","OUT_FOR_DELIVERY")) AS totalRevenue,
             (SELECT COUNT(*) FROM User WHERE restaurantId = r.id AND role = "CUSTOMER") AS customerCount
      FROM Restaurant r
+     WHERE r.isActive = 1
      ORDER BY r.createdAt DESC'
 );
 
@@ -94,6 +95,7 @@ $recent_activity = db_query(
         <div>
             <div class="sa-stat-label">Total Revenue</div>
             <div class="sa-stat-value">$<?= number_format($total_revenue, 0) ?></div>
+            <div class="sa-stat-sub" style="font-size:.7rem;color:#94a3b8">≈ <?= number_format($total_revenue * 4000) ?> KHR</div>
         </div>
     </div>
     <div class="sa-stat">
@@ -108,6 +110,7 @@ $recent_activity = db_query(
         <div>
             <div class="sa-stat-label">Today Revenue</div>
             <div class="sa-stat-value">$<?= number_format($today_revenue, 2) ?></div>
+            <div class="sa-stat-sub" style="font-size:.7rem;color:#94a3b8">≈ <?= number_format($today_revenue * 4000) ?> KHR</div>
         </div>
     </div>
 </div>

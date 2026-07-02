@@ -4,7 +4,9 @@ include dirname(__DIR__) . '/includes/admin_header.php';
 require_once dirname(__DIR__) . '/db.php';
 require_once dirname(__DIR__) . '/includes/activity.php';
 
-$restaurant = get_restaurant();
+$restaurant = !empty($current_user['restaurantId'])
+    ? db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']])
+    : null;
 $rid = $restaurant['id'] ?? null;
 $slug = $restaurant['slug'] ?? '';
 
@@ -102,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
             <div class="color-row">
                 <label><?= $label ?></label>
                 <input type="color" name="<?= $key ?>" value="<?= htmlspecialchars($s[$key]) ?>" onchange="this.nextElementSibling.value=this.value;updatePreview()">
-                <input type="text" value="<?= htmlspecialchars($s[$key]) ?>" onchange="this.previousElementSibling.value=this.value" readonly>
+                <input type="text" value="<?= htmlspecialchars($s[$key]) ?>" onchange="this.previousElementSibling.value=this.value">
             </div>
             <?php endforeach; ?>
         </div>

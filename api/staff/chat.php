@@ -3,10 +3,13 @@ require_once dirname(__DIR__, 2) . '/auth.php';
 
 $user = require_auth();
 if (!in_array($user['role'], ['ADMIN', 'MANAGER', 'SUPERADMIN'])) {
-    json_error(403, 'Staff access required');
+    json_error(403, 'Admin access required');
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
+
+// Parse request body for all methods
+$body = json_decode(file_get_contents('php://input'), true) ?? [];
 
 if ($method === 'GET') {
     $since  = $_GET['since'] ?? null;   // ISO datetime — fetch only newer messages
@@ -57,6 +60,23 @@ if ($method === 'POST') {
 
     $msg = db_fetch('SELECT * FROM StaffChat WHERE id = ?', [$id]);
     json_ok($msg);
+}
+
+// ── DELETE: Delete a staff chat message ──────────────
+if ($method === 'DELETE') {
+    $msg_id = $_GET['id'] ?? $body['id'] ?? '';
+    if (!$msg_id) json_error(400, 'Message ID required');
+
+    $msg = db_fetch('SELECT * FROM StaffChat WHERE id = ?', [$msg_id]);
+    if (!$msg) json_error(404, 'Message not found');
+
+    // Superadmin can delete any message; admin can only delete their own
+    if ($user['role'] !== 'SUPERADMIN' && $msg['senderId'] !== $user['id']) {
+        json_error(403, 'You can only delete your own messages');
+    }
+
+    db_execute('DELETE FROM StaffChat WHERE id = ?', [$msg_id]);
+    json_ok(['deleted' => true]);
 }
 
 json_error(405, 'Method not allowed');

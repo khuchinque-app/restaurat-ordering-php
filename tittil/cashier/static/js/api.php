@@ -1,16 +1,16 @@
 <?php
 /**
- * api.php - Server-side persistence API for TITTIL CASHIER
+ * api.php - Server-side persistence API for ASENG CASHIER
  * Located alongside script.js for coordinated access.
- * Uses the existing SQLite database (database.db) via ../../db.php
+ * Uses the existing SQLite database via ../../db.php
  * 
  * Endpoints:
- *   GET  ?action=load_state       — Load full app state JSON
- *   POST ?action=save_state       — Save full app state JSON
- *   GET  ?action=load_order_no    — Load current order number + reset date
- *   POST ?action=save_order_no    — Save current order number + reset date
- *   GET  ?action=load_driver_names — Load all driver names
- *   POST ?action=save_driver_name  — Save a specific driver name
+ *   GET  ?action=load_state       - Load full app state JSON
+ *   POST ?action=save_state       - Save full app state JSON
+ *   GET  ?action=load_order_no    - Load current order number + reset date
+ *   POST ?action=save_order_no    - Save current order number + reset date
+ *   GET  ?action=load_driver_names - Load all driver names
+ *   POST ?action=save_driver_name  - Save a specific driver name
  */
 
 require_once __DIR__ . '/../../db.php';
@@ -32,6 +32,7 @@ try {
         case 'load_driver_names': loadDriverNames();    break;
         case 'add_menu_item':     addMenuItem();        break;
         case 'report_deleted_order': reportDeletedOrder(); break;
+        case 'save_finished_order': saveFinishedOrder(); break;
         default:
             echo json_encode(['ok' => false, 'error' => 'Unknown action: ' . $action]);
     }
@@ -39,7 +40,6 @@ try {
     echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
 }
 
-// ── Ensure the app_state table exists ───────────────────────────────────────
 function ensureTable() {
     global $pdo;
     $pdo->exec("CREATE TABLE IF NOT EXISTS app_state (
@@ -49,92 +49,72 @@ function ensureTable() {
     )");
 }
 
-// ── Save full app state (container HTML + imageStore) ───────────────────────
 function saveState() {
     global $pdo;
     $input = json_decode(file_get_contents('php://input'), true);
     $data  = $input['data'] ?? '';
-
     ensureTable();
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO app_state (key, value, updated_at) VALUES ('app_data', ?, datetime('now'))");
     $stmt->execute([$data]);
-
     echo json_encode(['ok' => true]);
 }
 
-// ── Load full app state ─────────────────────────────────────────────────────
 function loadState() {
     global $pdo;
     ensureTable();
-
     $stmt = $pdo->prepare("SELECT value FROM app_state WHERE key = 'app_data'");
     $stmt->execute();
     $row = $stmt->fetch();
-
     echo json_encode(['ok' => true, 'data' => $row ? $row['value'] : null]);
 }
 
-// ── Save order number + last reset date ─────────────────────────────────────
 function saveOrderNo() {
     global $pdo;
     $input = json_decode(file_get_contents('php://input'), true);
-
     ensureTable();
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO app_state (key, value, updated_at) VALUES ('order_no', ?, datetime('now'))");
     $stmt->execute([json_encode([
         'order_no'        => $input['order_no'] ?? 0,
         'last_reset_date' => $input['last_reset_date'] ?? ''
     ])]);
-
     echo json_encode(['ok' => true]);
 }
 
-// ── Load order number + last reset date ─────────────────────────────────────
 function loadOrderNo() {
     global $pdo;
     ensureTable();
-
     $stmt = $pdo->prepare("SELECT value FROM app_state WHERE key = 'order_no'");
     $stmt->execute();
     $row = $stmt->fetch();
-
     echo json_encode(['ok' => true, 'data' => $row ? json_decode($row['value'], true) : null]);
 }
 
-// ── Save a single driver name ───────────────────────────────────────────────
 function saveDriverName() {
     global $pdo;
     $input = json_decode(file_get_contents('php://input'), true);
     $driver = $input['driver'] ?? '';
     $name   = $input['name']   ?? '';
-
     if (!$driver) {
         echo json_encode(['ok' => false, 'error' => 'Driver name is required']);
         return;
     }
-
     ensureTable();
     $stmt = $pdo->prepare("INSERT OR REPLACE INTO app_state (key, value, updated_at) VALUES ('driver_name_' || ?, ?, datetime('now'))");
     $stmt->execute([$driver, $name]);
-
     echo json_encode(['ok' => true]);
 }
 
-// ── Load all driver names ───────────────────────────────────────────────────
 function loadDriverNames() {
     global $pdo;
     ensureTable();
-
     $stmt = $pdo->prepare("SELECT key, value FROM app_state WHERE key LIKE 'driver_name_%'");
     $stmt->execute();
     $rows = $stmt->fetchAll();
-
     $names = [];
     foreach ($rows as $row) {
         $driverKey = str_replace('driver_name_', '', $row['key']);
         $names[$driverKey] = $row['value'];
     }
-
     echo json_encode(['ok' => true, 'data' => $names]);
 }
 
@@ -159,6 +139,29 @@ function addMenuItem() {
     }
 
     echo json_encode(['ok' => true]);
+}
+
+// ── Report finished order (saves to finished_orders for accounting) ─────
+function saveFinishedOrder() {
+    global $pdo;
+    $input = json_decode(file_get_contents('php://input'), true);
+    $orderNo        = $input['orderNo'] ?? $input['order_no'] ?? '';
+    $customerName   = $input['customerName'] ?? $input['customer_name'] ?? '';
+    $customerAddress = $input['address'] ?? '';
+    $total          = $input['total'] ?? 0;
+    $paymentType    = $input['isAba'] ? 'ABA' : 'CASH';
+    $plainText      = $input['plainText'] ?? $input['plain_text'] ?? '';
+    try {
+        $existing = $GLOBALS['pdo']->prepare("SELECT id FROM finished_orders WHERE order_no = ?");
+        $existing->execute([$orderNo]);
+        if (!$existing->fetch()) {
+            $stmt = $GLOBALS['pdo']->prepare("INSERT INTO finished_orders (order_no, customer_name, address, total, payment_type, plain_text) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$orderNo, $customerName, $customerAddress, $total, $paymentType, $plainText]);
+        }
+        echo json_encode(['ok' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+    }
 }
 
 // ── Report deleted order (telemetry) ───────────────────────────────────────

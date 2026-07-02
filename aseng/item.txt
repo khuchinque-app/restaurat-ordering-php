@@ -1,12 +1,40 @@
-# Aseng — menu items
-# One item per line, comma-separated. Lines starting with # are ignored.
-# Columns:  category , name , price , stock , lowStock , image
-#   price    = number (e.g. 8.50)
-#   stock    = whole number, or leave blank for unlimited
-#   lowStock = low-stock alert threshold (default 5 if blank)
-#   image    = filename only (goes in /aseng/assets/images/), or leave blank
-#
-# Example (delete these and add your real items):
-Mains, Nasi Goreng, 8.50, 40, 5, nasi-goreng.jpg
-Mains, Chicken Satay, 9.00, 30, 5, chicken-satay.jpg
-Drinks, Teh Tarik, 2.00, 100, 10, teh-tarik.jpg
+# Aseng — Real Pempek Menu
+# Columns: category , name , price , stock , lowStock , image
+# Price in USD. Rate: 4000 KHR = 1 USD
+# Stock blank = unlimited
+Pempek, Kapal Selam, 3.50
+Pempek, Selam Telur Bebek, 4.00
+Pempek, Lenggang Telur Ayam, 3.00
+Pempek, Lenggang Telur Bebek, 3.50
+Pempek, Rujak Mie, 3.00
+Pempek, Tekwan, 3.00
+Pempek, Tekwan Model Ikan, 3.50
+Pempek, Model Ikan, 3.00
+Pempek, Laksan, 3.50
+Pempek, Celimpungan, 3.50
+Pempek, Campur, 6.25
+Pempek, Campur Komplit, 8.00
+Pempek, Lenjer / Iris, 3.50
+Pempek, Lenjer Kecil, 3.50
+Pempek, Adaan / Bulat, 3.50
+Pempek, Keriting, 3.50
+Pempek, Cerewet / Belah, 3.50
+Pempek, Tahu, 3.50
+Pempek, Telur Kecil, 3.50
+Pempek, Pempek Model Telur Puyuh, 3.50
+Pempek, Model Ikan Telur Puyuh, 4.50
+Pempek, Sate Kukus, 3.50
+Pempek, Lenggang Panggang, 4.00
+Pempek, Pistel, 3.50
+Pcs, Lenjer / Balok / Iris (pcs), 0.75
+Pcs, Lenjer / Balok / Iris Kecil (pcs), 0.75
+Pcs, Adaan / Bulat (pcs), 0.75
+Pcs, Keriting (pcs), 0.75
+Pcs, Cerewet (pcs), 0.75
+Pcs, Tahu (pcs), 0.75
+Pcs, Telur Kecil (pcs), 0.75
+Pcs, Pistel (pcs), 0.75
+Pcs, Sate Kukus (pcs), 0.75
+Mains, Nasi, 0.50
+Mains, Indomie Goreng / Soto / Kari, 0.75
+Sides, Cuko / Cup, 0.50

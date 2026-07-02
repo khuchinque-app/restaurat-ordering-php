@@ -935,6 +935,85 @@ body {
   background: var(--primary-dark);
 }
 
+/* ===== Floating Cart Button ===== */
+.float-cart {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.4);
+  z-index: 150;
+  transition: var(--transition);
+  font-size: 1.5rem;
+}
+
+.float-cart:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 28px rgba(13, 148, 136, 0.5);
+}
+
+.float-cart:active {
+  transform: scale(0.95);
+}
+
+.float-cart-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 9999px;
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0 0.3rem;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  animation: badgePop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: #fff;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 250;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .hero h1 { font-size: 2rem; }
@@ -945,11 +1024,64 @@ body {
 }
 
 @media (max-width: 480px) {
-  .hero h1 { font-size: 1.65rem; }
-  .header-inner { padding: 0 1rem; height: 60px; }
-  .logo { font-size: 1.1rem; }
-  .logo-icon { width: 30px; height: 30px; font-size: 1rem; }
-  .menu-grid { grid-template-columns: 1fr; }
-  .cart-drawer { max-width: 100%; }
-  .menu-card-img-wrap { height: 150px; }
+  .hero { padding: 2rem 1rem 1.5rem; }
+  .hero h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .hero p { font-size: 0.88rem; max-width: 100%; }
+  .hero-badge { font-size: 0.65rem; padding: 0.2rem 0.75rem; margin-bottom: 0.75rem; }
+  .hero::after { height: 20px; border-radius: 12px 12px 0 0; }
+  .hero-divider { margin: 0.85rem auto 0; width: 40px; }
+
+  .header-inner { padding: 0 0.75rem; height: 54px; }
+  .logo { font-size: 1rem; gap: 0.4rem; }
+  .logo-icon { width: 28px; height: 28px; font-size: 0.9rem; }
+  .cart-btn { padding: 0.35rem 0.7rem; font-size: 0.75rem; gap: 0.3rem; }
+  .cart-badge { min-width: 18px; font-size: 0.6rem; padding: 0.05rem 0.35rem; }
+
+  .container { padding: 0 0.75rem; overflow-x: hidden; }
+  .toolbar { padding: 1rem 0 0.75rem; gap: 0.6rem; overflow: hidden; flex-direction: column; }
+  .cat-tabs { gap: 0.3rem; max-width: 100%; overflow-x: auto; }
+  .cat-tab { padding: 0.5rem 0.85rem; font-size: 0.8rem; min-height: 44px; display: inline-flex; align-items: center; }
+  .search-wrap { max-width: 100%; }
+
+  .stats-bar { padding: 0.4rem 0 0.75rem; gap: 0.4rem; }
+  .stat-chip { font-size: 0.7rem; padding: 0.2rem 0.6rem; }
+
+  .menu-grid { grid-template-columns: 1fr; gap: 0.75rem; padding-bottom: 2rem; }
+  .menu-card-img-wrap { height: 140px; }
+  .menu-card-body { padding: 0.75rem 0.85rem 0.85rem; }
+  .card-cat { font-size: 0.6rem; margin-bottom: 0.1rem; }
+  .card-name { font-size: 0.88rem; margin-bottom: 0.15rem; }
+  .card-desc { font-size: 0.75rem; margin-bottom: 0.5rem; }
+  .card-footer { padding-top: 0.5rem; }
+  .price { font-size: 0.95rem; }
+  .price-khr { font-size: 0.6rem; }
+  .add-btn { padding: 0.5rem 1rem; font-size: 0.82rem; min-height: 44px; }
+
+  .cart-drawer { max-width: 100%; right: -100%; }
+  .drawer-header { padding: 0.75rem 1rem; }
+  .drawer-header h2 { font-size: 1rem; }
+  .close-btn { width: 44px; height: 44px; font-size: 1.2rem; }
+  .drawer-body { padding: 0.75rem; gap: 0.6rem; }
+  .drawer-footer { padding: 0.85rem; padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0.5rem)); }
+  .cart-item { padding: 0.6rem; gap: 0.5rem; }
+  .ci-name { font-size: 0.82rem; }
+  .ci-price { font-size: 0.72rem; }
+  .ci-price-khr { font-size: 0.65rem; }
+  .rm-btn { width: 44px; height: 44px; font-size: 1rem; }
+  .qty-btn { width: 44px; height: 44px; font-size: 1.1rem; }
+  .qty-val { min-width: 24px; font-size: 0.9rem; }
+  .summary { margin-bottom: 0.75rem; }
+  .sum-row { font-size: 0.8rem; padding: 0.2rem 0; }
+  .sum-total { font-size: 0.95rem; padding-top: 0.4rem; margin-top: 0.2rem; }
+  .form-group { margin-bottom: 0.5rem; }
+  .form-group label { font-size: 0.72rem; }
+  .form-group input, .form-group textarea { font-size: 16px; padding: 0.45rem 0.65rem; }
+  .place-btn { padding: 0.7rem 0.5rem; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .float-cart { width: 54px; height: 54px; bottom: 1rem; right: 1rem; font-size: 1.3rem; }
+  .float-cart-badge { min-width: 20px; height: 20px; font-size: 0.6rem; top: -1px; right: -1px; }
+  .chat-bubble { width: 44px; height: 44px; bottom: 5rem; right: 1rem; font-size: 1.2rem; }
+  .toast { left: 0.75rem; right: 0.75rem; bottom: 5rem; text-align: center; border-radius: 10px; font-size: 0.8rem; padding: 0.6rem 1rem; }
+  .chat-widget { right: 0.5rem; left: 0.5rem; width: auto; }
+  .chat-widget-input-area input { font-size: 16px; }
 }

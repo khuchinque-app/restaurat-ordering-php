@@ -36,7 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Restaurant info
-$restaurant = get_restaurant();
+$restaurant = !empty($current_user['restaurantId'])
+    ? db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']])
+    : null;
 $rid = $restaurant['id'] ?? null;
 $today = date('Y-m-d');
 $stats = [

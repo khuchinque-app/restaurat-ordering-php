@@ -32,6 +32,7 @@ try {
         case 'load_driver_names': loadDriverNames();    break;
         case 'add_menu_item':     addMenuItem();        break;
         case 'report_deleted_order': reportDeletedOrder(); break;
+        case 'save_finished_order': saveFinishedOrder(); break;
         default:
             echo json_encode(['ok' => false, 'error' => 'Unknown action: ' . $action]);
     }
@@ -138,6 +139,29 @@ function addMenuItem() {
     }
 
     echo json_encode(['ok' => true]);
+}
+
+// ── Report finished order (saves to finished_orders for accounting) ─────
+function saveFinishedOrder() {
+    global $pdo;
+    $input = json_decode(file_get_contents('php://input'), true);
+    $orderNo        = $input['orderNo'] ?? $input['order_no'] ?? '';
+    $customerName   = $input['customerName'] ?? $input['customer_name'] ?? '';
+    $customerAddress = $input['address'] ?? '';
+    $total          = $input['total'] ?? 0;
+    $paymentType    = $input['isAba'] ? 'ABA' : 'CASH';
+    $plainText      = $input['plainText'] ?? $input['plain_text'] ?? '';
+    try {
+        $existing = $GLOBALS['pdo']->prepare("SELECT id FROM finished_orders WHERE order_no = ?");
+        $existing->execute([$orderNo]);
+        if (!$existing->fetch()) {
+            $stmt = $GLOBALS['pdo']->prepare("INSERT INTO finished_orders (order_no, customer_name, address, total, payment_type, plain_text) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$orderNo, $customerName, $customerAddress, $total, $paymentType, $plainText]);
+        }
+        echo json_encode(['ok' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+    }
 }
 
 // ── Report deleted order (telemetry) ───────────────────────────────────────

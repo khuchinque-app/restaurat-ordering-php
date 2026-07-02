@@ -73,11 +73,10 @@ function parseMenuText(text) {
 }
 
 
+
 // =============================================================================
 // SECTION 1.6: SERVER-SIDE API HELPERS (Cross-browser persistence)
 // =============================================================================
-
-// ── Save full app state to server ───────────────────────────────────────────
 
 async function apiSaveState(data) {
     try {
@@ -96,8 +95,6 @@ async function apiSaveState(data) {
     }
 }
 
-// ── Load full app state from server ─────────────────────────────────────────
-
 async function apiLoadState() {
     try {
         const res = await fetch(API_ENDPOINT + '?action=load_state');
@@ -109,8 +106,6 @@ async function apiLoadState() {
         return null;
     }
 }
-
-// ── Save order number to server ─────────────────────────────────────────────
 
 async function apiSaveOrderNo(orderNo, lastResetDate) {
     try {
@@ -126,8 +121,6 @@ async function apiSaveOrderNo(orderNo, lastResetDate) {
     }
 }
 
-// ── Load order number from server ───────────────────────────────────────────
-
 async function apiLoadOrderNo() {
     try {
         const res = await fetch(API_ENDPOINT + '?action=load_order_no');
@@ -139,8 +132,6 @@ async function apiLoadOrderNo() {
         return null;
     }
 }
-
-// ── Save a driver name to server ────────────────────────────────────────────
 
 async function apiSaveDriverName(driver, name) {
     try {
@@ -155,8 +146,6 @@ async function apiSaveDriverName(driver, name) {
         return false;
     }
 }
-
-// ── Load all driver names from server ───────────────────────────────────────
 
 async function apiLoadDriverNames() {
     try {
@@ -412,7 +401,6 @@ function reattachEvents() {
     attachHoverListeners();
 }
 
-// Load persisted data from server (with localStorage fallback)
 loadData();
 
 
@@ -1518,6 +1506,17 @@ function moveToFinished(id) {
     updateButtonsForContainer(item);
     saveData();
     updateTotals();
+    // Report for accounting
+    const orderNo = item.dataset.orderNo || item.querySelector('.order-no')?.textContent || '';
+    const name = item.querySelector('.customer-name')?.textContent || '';
+    const address = item.querySelector('.address')?.textContent || '';
+    const total = parseFloat(item.dataset.total) || 0;
+    const isAba = item.classList.contains('archived');
+    fetch('./static/js/api.php?action=save_finished_order', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({orderNo, customerName: name, address, total, isAba})
+    }).catch(() => {});
 }
 
 

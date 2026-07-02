@@ -12,6 +12,7 @@ $by_restaurant = db_query(
             COUNT(CASE WHEN o.status="CANCELLED" THEN 1 END) AS cancelled
      FROM Restaurant r
      LEFT JOIN "Order" o ON o.restaurantId = r.id
+     WHERE r.isActive = 1
      GROUP BY r.id
      ORDER BY totalRevenue DESC'
 );

@@ -1,7 +1,7 @@
 // ===== Aseng — Authentic Asian Flavors =====
 const RESTAURANT_SLUG = 'aseng';
 const API_BASE        = '/api';
-const TAX_RATE        = 0.10;
+const TAX_RATE        = 0;
 const CART_KEY        = 'cart_' + RESTAURANT_SLUG;
 
 // ── Cart ──────────────────────────────────────────────
@@ -68,7 +68,7 @@ function renderCartDrawer() {
     const body   = document.getElementById('cart-body');
     const footer = document.getElementById('cart-footer');
     if (!cart.length) {
-        body.innerHTML   = '<div class="drawer-empty"><div class="empty-icon">&#128722;</div>Your cart is empty</div>';
+        body.innerHTML   = '<div class="drawer-empty"><div class="empty-icon">&#128722;</div>Pesanan masih kosong</div>';
         footer.innerHTML = '';
         return;
     }
@@ -89,23 +89,21 @@ function renderCartDrawer() {
                 <button class="qty-btn" onclick="changeQty('${i.id}',1)">&#43;</button>
                 <button class="rm-btn" onclick="removeItem('${i.id}')" title="Remove">&times;</button>
             </div>
-        </div>`).join('');
+        </div>`}).join('');
 
-    const sub = subtotal(), tax = sub * TAX_RATE, tot = sub + tax;
+    const sub = subtotal(), tot = sub;
     const totKhr = (tot * 4000).toLocaleString();
     const subKhr = (sub * 4000).toLocaleString();
-    const taxKhr = (tax * 4000).toLocaleString();
     footer.innerHTML = `
         <div class="summary">
             <div class="sum-row"><span>Items (${itemCount})</span><span></span></div>
             <div class="sum-row"><span>Subtotal</span><span>${fmt(sub)} <span style="font-size:.75rem;color:#94a3b8">(${subKhr} KHR)</span></span></div>
-            <div class="sum-row"><span>Tax (${(TAX_RATE*100).toFixed(0)}%)</span><span>${fmt(tax)} <span style="font-size:.75rem;color:#94a3b8">(${taxKhr} KHR)</span></span></div>
             <div class="sum-row sum-total"><span>Total</span><span>${fmt(tot)} <span style="font-size:.8rem">(${totKhr} KHR)</span></span></div>
         </div>
         <div class="form-group"><label>Your Name</label><input id="cust-name" type="text" placeholder="Enter your name (optional)"></div>
         <div class="form-group"><label>Phone</label><input id="cust-phone" type="tel" placeholder="Phone number (optional)"></div>
         <div class="form-group"><label>Order Notes</label><textarea id="cust-notes" rows="2" placeholder="Any special instructions..."></textarea></div>
-        <button class="place-btn" id="place-order-btn" onclick="placeOrder()">Place Order &mdash; ${fmt(tot)} (${totKhr} KHR)</button>`;
+        <a href="https://t.me/pempekaseng" target="_blank" style="display:block;text-align:center;padding:.5rem;background:#0088cc;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:.85rem;margin-bottom:.4rem" onclick="window.open('https://t.me/pempekaseng')">📱 Accept &amp; Order via Telegram</a><button class="place-btn" id="place-order-btn" onclick="placeOrder()">Place Order &mdash; ${fmt(tot)} (${totKhr} KHR)</button>`;
 }
 
 // ── Order ─────────────────────────────────────────────
@@ -153,6 +151,7 @@ async function placeOrder() {
 function showOrderConfirm(orderNumber) {
     document.getElementById('confirm-order-num').textContent = '#' + orderNumber;
     document.getElementById('order-confirm').classList.add('open');
+    window.open('https://t.me/pempekaseng', '_blank');
 }
 
 // ── Menu Rendering ────────────────────────────────────
@@ -348,6 +347,61 @@ async function loadChatHistory() {
         });
     } catch {}
 }
+
+// ── Presence (Heartbeat) ──────────────────────────
+let presenceTimer = null;
+
+function startPresence() {
+    stopPresence();
+    sendHeartbeat(); // immediate
+    presenceTimer = setInterval(sendHeartbeat, 10000); // every 10s
+}
+
+function stopPresence() {
+    if (presenceTimer) {
+        clearInterval(presenceTimer);
+        presenceTimer = null;
+    }
+    // Tell server we're away
+    sendPresenceOffline();
+}
+
+async function sendHeartbeat() {
+    try {
+        await fetch('/api/customer/presence.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender_name: getChatCustomerName(),
+                restaurant: RESTAURANT_SLUG
+            })
+        });
+    } catch {}
+}
+
+async function sendPresenceOffline() {
+    try {
+        await fetch('/api/customer/presence.php', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender_name: getChatCustomerName(),
+                restaurant: RESTAURANT_SLUG
+            })
+        });
+    } catch {}
+}
+
+// Patch toggleChat to manage presence
+const _origToggleChat = toggleChat;
+toggleChat = function() {
+    _origToggleChat();
+    if (chatWidgetOpen) {
+        startPresence();
+    } else {
+        stopPresence();
+    }
+};
 
 // ── Init ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {

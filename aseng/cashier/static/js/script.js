@@ -1506,6 +1506,17 @@ function moveToFinished(id) {
     updateButtonsForContainer(item);
     saveData();
     updateTotals();
+    // Report for accounting
+    const orderNo = item.dataset.orderNo || item.querySelector('.order-no')?.textContent || '';
+    const name = item.querySelector('.customer-name')?.textContent || '';
+    const address = item.querySelector('.address')?.textContent || '';
+    const total = parseFloat(item.dataset.total) || 0;
+    const isAba = item.classList.contains('archived');
+    fetch('./static/js/api.php?action=save_finished_order', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({orderNo, customerName: name, address, total, isAba})
+    }).catch(() => {});
 }
 
 

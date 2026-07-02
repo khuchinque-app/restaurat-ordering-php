@@ -131,7 +131,18 @@ $items = db_query(
     </div>
     <div style="font-size:.73rem;color:#94a3b8">Threshold: <?= $threshold ?> &nbsp;|&nbsp; Type a qty &amp; press Save or Enter</div>
     <?php else: ?>
-    <div style="font-size:.8rem;color:#94a3b8">This item has unlimited stock (no tracking).</div>
+    <div class="sc-controls" style="margin-top:.3rem">
+        <div class="sc-stepper">
+            <button onclick="stepQty('<?= $item['id'] ?>',1)" title="Increase">&#9650;</button>
+            <button onclick="stepQty('<?= $item['id'] ?>',-1)" title="Decrease">&#9660;</button>
+        </div>
+        <input type="number" id="qty-input-<?= $item['id'] ?>"
+               value="50" min="0"
+               onkeydown="if(event.key==='Enter') saveStock('<?= $item['id'] ?>')">
+        <button class="sc-btn-save" id="save-<?= $item['id'] ?>" onclick="saveStock('<?= $item['id'] ?>')">Save</button>
+        <span class="sc-saved" id="saved-<?= $item['id'] ?>">&#10003; Saved</span>
+    </div>
+    <div style="font-size:.73rem;color:#94a3b8">No stock set yet &nbsp;|&nbsp; Enter qty &amp; press Save</div>
     <?php endif; ?>
 </div>
 <?php endforeach; ?>

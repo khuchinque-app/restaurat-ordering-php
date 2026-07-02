@@ -1,14 +1,11 @@
 <?php
-$page_title = 'Stock (Read Only)';
+$page_title = 'Stock Overview';
 include dirname(__DIR__) . '/includes/admin_header.php';
 require_once dirname(__DIR__) . '/db.php';
 
-// Use the admin's assigned restaurant; fall back to default if not set
-if (!empty($current_user['restaurantId'])) {
-    $restaurant = db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']]);
-} else {
-    $restaurant = get_restaurant();
-}
+$restaurant = !empty($current_user['restaurantId'])
+    ? db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']])
+    : null;
 $rid = $restaurant['id'] ?? null;
 $slug = $restaurant['slug'] ?? '';
 
@@ -25,11 +22,6 @@ $items = db_query(
     $params
 );
 ?>
-
-<div class="alert alert-info" style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
-    🔒 <strong>View Only</strong> &mdash; Stock adjustments are managed by Superadmin.
-</div>
-
 <style>
 .stock-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; align-items:flex-end; margin-bottom:1.25rem; }
 .stock-toolbar label { font-size:.78rem; font-weight:600; display:block; margin-bottom:.2rem; color:#6b7280; }
@@ -50,7 +42,6 @@ $items = db_query(
 .sc-badge.none { background:#f1f5f9; color:#64748b; }
 </style>
 
-<!-- Toolbar -->
 <div class="stock-toolbar">
     <div>
         <label>Show</label>
@@ -63,6 +54,7 @@ $items = db_query(
     <div style="margin-left:auto; font-size:.85rem; color:#6b7280; align-self:center">
         <?= count($items) ?> item<?= count($items) !== 1 ? 's' : '' ?>
         &nbsp;&mdash;&nbsp; <?= htmlspecialchars($restaurant['name'] ?? '') ?>
+        <span style="color:#94a3b8;font-size:.75rem;margin-left:.5rem">(read-only view)</span>
     </div>
 </div>
 
@@ -94,7 +86,7 @@ $items = db_query(
     <?php if ($has_stock): ?>
     <div style="font-size:.73rem;color:#94a3b8">Threshold: <?= $threshold ?></div>
     <?php else: ?>
-    <div style="font-size:.8rem;color:#94a3b8">This item has unlimited stock (no tracking).</div>
+    <div style="font-size:.8rem;color:#94a3b8">Unlimited (no tracking)</div>
     <?php endif; ?>
 </div>
 <?php endforeach; ?>

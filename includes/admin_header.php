@@ -17,15 +17,15 @@ $current_path = $_SERVER['REQUEST_URI'] ?? '/';
 <aside class="admin-sidebar">
     <div class="sidebar-logo">&#127860; Admin</div>
     <nav class="sidebar-nav">
-        <a href="<?= APP_URL ?>/admin/index.php"     class="<?= strpos($current_path, 'admin/index') !== false ? 'active' : '' ?>">&#128202; Dashboard</a>
+        <a href="<?= APP_URL ?>/admin/index.php"     class="<?= strpos($current_path, 'admin/index') !== false ? 'active' : '' ?>">&#128202; Dashboard <span id="badgeDashboard" class="nav-badge" style="display:none">0</span></a>
         <a href="<?= APP_URL ?>/admin/hub.php"       class="<?= strpos($current_path, 'admin/hub') !== false ? 'active' : '' ?>">👤 Hub</a>
-        <a href="<?= APP_URL ?>/admin/checkout.php"   class="<?= strpos($current_path, 'admin/checkout') !== false ? 'active' : '' ?>">&#128230; Live Orders</a>
-        <a href="<?= APP_URL ?>/admin/menu.php"       class="<?= strpos($current_path, 'admin/menu') !== false ? 'active' : '' ?>">&#127860; Menu</a>
-        <a href="<?= APP_URL ?>/admin/stock.php"      class="<?= strpos($current_path, 'admin/stock') !== false ? 'active' : '' ?>">&#128230; Stock</a>
+        <a href="<?= APP_URL ?>/admin/checkout.php"   class="<?= strpos($current_path, 'admin/checkout') !== false ? 'active' : '' ?>">&#128230; Live Orders <span id="badgeOrders" class="nav-badge" style="display:none">0</span></a>
+        <a href="<?= APP_URL ?>/admin/menu.php"       class="<?= strpos($current_path, 'admin/menu') !== false ? 'active' : '' ?>">&#127860; Menu <span id="badgeMenu" class="nav-badge" style="display:none">0</span></a>
+        <a href="<?= APP_URL ?>/admin/stock.php"      class="<?= strpos($current_path, 'admin/stock') !== false ? 'active' : '' ?>">&#128230; Stock <span id="badgeStock" class="nav-badge" style="display:none">0</span></a>
         <a href="<?= APP_URL ?>/admin/accounting.php"  class="<?= strpos($current_path, 'admin/accounting') !== false ? 'active' : '' ?>">&#128176; Accounting</a>
         <a href="<?= APP_URL ?>/admin/settings.php"    class="<?= strpos($current_path, 'admin/settings') !== false ? 'active' : '' ?>">&#9881; Settings</a>
-        <a href="<?= APP_URL ?>/admin/chat.php"        class="<?= strpos($current_path, 'admin/chat') !== false ? 'active' : '' ?>" id="chatNavLink">&#128172; Chat <span id="chatUnreadBadge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;font-size:.7rem;padding:.05rem .4rem;margin-left:.2rem">0</span></a>
-        <a href="<?= APP_URL ?>/admin/orders.php"       class="<?= strpos($current_path, 'admin/orders') !== false ? 'active' : '' ?>" id="notifNavLink">&#128276; Alerts <span id="notifUnreadBadge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;font-size:.7rem;padding:.05rem .4rem;margin-left:.2rem">0</span></a>
+        <a href="<?= APP_URL ?>/admin/chat.php"        class="<?= strpos($current_path, 'admin/chat') !== false ? 'active' : '' ?>" id="chatNavLink">&#128172; Chat <span id="badgeChat" class="nav-badge" style="display:none">0</span></a>
+        <a href="<?= APP_URL ?>/admin/orders.php"       class="<?= strpos($current_path, 'admin/orders') !== false ? 'active' : '' ?>" id="notifNavLink">&#128276; Alerts <span id="badgeAlerts" class="nav-badge" style="display:none">0</span></a>
         <hr>
         <?php require_once dirname(__DIR__) . '/includes/storefronts.php'; render_storefront_nav(); ?>
         <div class="sidebar-section-label" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;margin:.3rem 0 .2rem;padding-left:.2rem">Cashier-Outstore</div>
@@ -70,7 +70,7 @@ $current_path = $_SERVER['REQUEST_URI'] ?? '/';
                     b.onclick = async function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        await fetch('<?= APP_URL ?>/api/notifications/index.php?all=1', {method:'PUT', credentials:'include'});
+                        await fetch('<?= APP_URL ?>/api/notifications/index.php?id=all', {method:'PUT', credentials:'include'});
                         b.style.display = 'none';
                         b.textContent = '0';
                         sessionStorage.setItem('notifCount', '0');

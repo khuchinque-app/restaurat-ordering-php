@@ -87,18 +87,25 @@ $items = $rid ? db_query(
 
     <div style="overflow-x:auto">
     <table class="table" id="items-table">
-        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Avail</th><th>Actions</th></tr></thead>
+        <thead><tr><th style="width:50px">Img</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Avail</th><th>Actions</th></tr></thead>
         <tbody>
         <?php foreach ($items as $item): ?>
         <tr id="item-<?= htmlspecialchars($item['id']) ?>"
             data-category="<?= htmlspecialchars($item['categoryId']) ?>"
             data-name="<?= htmlspecialchars(strtolower($item['name'])) ?>">
+            <td style="text-align:center;vertical-align:middle">
+                <?php if ($item['image']): ?>
+                <img src="<?= htmlspecialchars($item['image']) ?>" alt="" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid #e5e7eb">
+                <?php else: ?>
+                <span style="font-size:.8rem;color:#cbd5e1">📷</span>
+                <?php endif; ?>
+            </td>
             <td>
                 <strong><?= htmlspecialchars($item['name']) ?></strong>
                 <?php if ($item['description']): ?><br><small class="text-muted"><?= htmlspecialchars(mb_strimwidth($item['description'], 0, 50, '...')) ?></small><?php endif; ?>
             </td>
             <td><?= htmlspecialchars($item['categoryName']) ?></td>
-            <td>$<?= number_format((float)$item['price'], 2) ?></td>
+            <td>$<?= number_format((float)$item['price'], 2) ?> <small style="color:#94a3b8">· <?= number_format((float)$item['price'] * 4000) ?> KHR</small></td>
             <td class="<?= $item['stockQuantity'] !== null && $item['stockQuantity'] <= $item['lowStockThreshold'] ? 'text-warn' : '' ?>">
                 <?= $item['stockQuantity'] !== null ? (int)$item['stockQuantity'] : '∞' ?>
             </td>
@@ -114,7 +121,7 @@ $items = $rid ? db_query(
         </tr>
         <?php endforeach; ?>
         <?php if (empty($items)): ?>
-        <tr><td colspan="6" style="text-align:center;padding:2rem;color:#94a3b8">No items. Add some!</td></tr>
+        <tr><td colspan="7" style="text-align:center;padding:2rem;color:#94a3b8">No items. Add some!</td></tr>
         <?php endif; ?>
         </tbody>
     </table>
@@ -123,6 +130,15 @@ $items = $rid ? db_query(
 
 </div>
 
+<style>
+.fp-gallery-toggle { cursor:pointer; color:#7c3aed; font-size:.82rem; text-decoration:underline; margin-top:.25rem; display:inline-block; }
+.fp-gallery-toggle:hover { color:#6d28d9; }
+.fp-gallery { display:none; flex-wrap:wrap; gap:.4rem; margin-top:.5rem; max-height:240px; overflow-y:auto; padding:.5rem; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; }
+.fp-gallery.open { display:flex; }
+.fp-gallery img { width:56px; height:56px; object-fit:cover; border-radius:6px; border:2px solid transparent; cursor:pointer; transition:all .15s; }
+.fp-gallery img:hover { border-color:#7c3aed; transform:scale(1.1); }
+.fp-gallery img.selected { border-color:#7c3aed; box-shadow:0 0 0 2px rgba(124,58,237,0.3); }
+</style>
 <!-- Add/Edit Item Modal -->
 <div class="modal" id="item-modal" style="display:none">
     <div class="modal-backdrop" id="modal-backdrop"></div>
@@ -161,6 +177,10 @@ $items = $rid ? db_query(
                     </div>
                     <div style="margin-top:.5rem">
                         <input type="url" name="image" id="item-image" class="form-control" placeholder="Or paste image URL (https://...)" style="font-size:.85rem">
+                    </div>
+                    <div style="margin-top:.3rem">
+                        <a class="fp-gallery-toggle" onclick="toggleGallery()" id="galleryToggle">📂 Pick from Foodpanda images</a>
+                        <div class="fp-gallery" id="fpGallery"></div>
                     </div>
                 </div>
             </div>
@@ -332,6 +352,78 @@ document.getElementById('item-search')?.addEventListener('input', function() {
         row.style.display = !q || (row.dataset.name||'').includes(q) ? '' : 'none';
     });
 });
+// ── Foodpanda Image Gallery ──────────────────────────
+const ASSET_IMG_DIRS = {
+    'aseng': '/aseng/asset-img/',
+    'tittil': '/tittil/asset-img/'
+};
+
+function toggleGallery() {
+    const gallery = document.getElementById('fpGallery');
+    const toggle = document.getElementById('galleryToggle');
+    if (gallery.classList.contains('open')) {
+        gallery.classList.remove('open');
+        gallery.innerHTML = '';
+        toggle.textContent = '📂 Pick from Foodpanda images';
+        return;
+    }
+    const slug = document.querySelector('select[onchange*="menu.php"]')?.value || RESTAURANT_SLUG;
+    const dir = ASSET_IMG_DIRS[slug];
+    if (!dir) { alert('No Foodpanda images for this restaurant'); return; }
+    
+    gallery.innerHTML = '<div style="width:100%;font-size:.8rem;color:#94a3b8;padding:.3rem">Loading...</div>';
+    gallery.classList.add('open');
+    toggle.textContent = '📂 Close gallery';
+    
+    // Fetch the asset-img directory listing (the README lists files)
+    // Since we can't list dirs from JS, we use a known list
+    const knownCounts = { 'aseng': 144, 'tittil': 51 };
+    const count = knownCounts[slug] || 0;
+    gallery.innerHTML = '';
+    
+    // Generate gallery from known file pattern
+    if (slug === 'aseng') {
+        const pids = [3930501,3930502,3930503,3930504,3930505,3930506,3930519,3930521,3930523,3930526,3930527,3930528,3930529,3930531,3930532,3930533,3930534,3930535,3930536,3930537,3930538,3930539,3930540,3930541,3930542,3930543,3930544,3930545,3930546,3930547,3930548,3930549,3930550,3930551,3930552,3930553,3930554,3930555,3930556,3930557,3930558,3930559,3930560,3930561,3930562,3930563,3930564,3930565,3930566,3930567,3930568,3930569,3930570,3930581,3930582,3930583,3930584,3930585,3930586,3930587,3930588,3930589,3930590,3930591,3930592,3930593,3930594,3930595,3930596,3930597,3930598,3930599];
+        pids.forEach(pid => {
+            const url = dir + 'fp_' + pid + '.jpg';
+            const img = document.createElement('img');
+            img.src = url;
+            img.loading = 'lazy';
+            img.title = 'fp_' + pid;
+            img.onclick = function() {
+                document.getElementById('item-image').value = url;
+                document.getElementById('image-preview').src = url;
+                document.getElementById('image-preview-wrap').style.display = '';
+                document.querySelectorAll('#fpGallery img').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+            };
+            img.onerror = function() { this.style.display = 'none'; };
+            gallery.appendChild(img);
+        });
+    } else if (slug === 'tittil') {
+        for (let pid = 3930600; pid <= 3930649; pid++) {
+            const url = dir + 'fp_' + pid + '.jpg';
+            const img = document.createElement('img');
+            img.src = url;
+            img.loading = 'lazy';
+            img.title = 'fp_' + pid;
+            img.onclick = function() {
+                document.getElementById('item-image').value = url;
+                document.getElementById('image-preview').src = url;
+                document.getElementById('image-preview-wrap').style.display = '';
+                document.querySelectorAll('#fpGallery img').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+            };
+            img.onerror = function() { this.style.display = 'none'; };
+            gallery.appendChild(img);
+        }
+    }
+    
+    if (!gallery.children.length) {
+        gallery.innerHTML = '<div style="width:100%;font-size:.8rem;color:#94a3b8;padding:.3rem">No images found</div>';
+    }
+}
+
 </script>
 
 <?php include dirname(__DIR__) . '/includes/superadmin_footer.php'; ?>

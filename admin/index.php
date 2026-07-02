@@ -3,7 +3,9 @@ require_once dirname(__DIR__) . '/db.php';
 $page_title = 'Dashboard';
 include dirname(__DIR__) . '/includes/admin_header.php';
 
-$restaurant = get_restaurant();
+$restaurant = !empty($current_user['restaurantId'])
+    ? db_fetch('SELECT * FROM Restaurant WHERE id = ? AND isActive = 1', [$current_user['restaurantId']])
+    : null;
 $rid = $restaurant['id'] ?? null;
 $today = date('Y-m-d') . ' 00:00:00';
 

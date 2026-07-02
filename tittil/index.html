@@ -16,10 +16,6 @@
             <span class="logo-icon">&#127870;</span>
             Tittil
         </a>
-        <button class="cart-btn" onclick="openCart()">
-            &#128722; Cart
-            <span class="cart-badge" id="cart-count" style="display:none">0</span>
-        </button>
     </div>
 </header>
 
@@ -66,13 +62,13 @@
 <!-- Cart Drawer -->
 <div class="cart-drawer" id="cart-drawer">
     <div class="drawer-header">
-        <h2>&#128722; Your Cart</h2>
+        <h2>&#128722; Pesanan</h2>
         <button class="close-btn" onclick="closeCart()">&times;</button>
     </div>
     <div class="drawer-body" id="cart-body">
         <div class="drawer-empty">
             <div class="empty-icon">&#128722;</div>
-            Your cart is empty
+            Pesanan masih kosong
         </div>
     </div>
     <div class="drawer-footer" id="cart-footer"></div>
@@ -82,11 +78,17 @@
 <div class="confirm-modal" id="order-confirm">
     <div class="confirm-box">
         <div class="confirm-icon">&#10003;</div>
-        <h2>Order Placed!</h2>
-        <p>Your order <strong id="confirm-order-num"></strong> has been received. We'll prepare it right away!</p>
-        <button class="confirm-btn" onclick="document.getElementById('order-confirm').classList.remove('open')">Continue Browsing</button>
+        <h2>Pesanan Terkirim!</h2>
+        <p>Pesanan <strong id="confirm-order-num"></strong> telah diterima. Kami akan segera menyiapkannya!</p>
+        <button class="confirm-btn" onclick="document.getElementById('order-confirm').classList.remove('open')">Lanjut Belanja</button>
     </div>
 </div>
+
+<!-- Floating Cart Button -->
+<button class="float-cart" id="floatCartBtn" onclick="openCart()" title="Lihat Pesanan">
+    <span class="float-cart-icon">&#128722;</span>
+    <span class="float-cart-badge" id="cart-count" style="display:none">0</span>
+</button>
 
 <!-- Chat Bubble -->
 <div class="chat-bubble" id="chatBubble" onclick="toggleChat()" title="Chat with us">

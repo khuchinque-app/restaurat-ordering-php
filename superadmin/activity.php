@@ -3,6 +3,22 @@ $page_title = 'Activity History';
 include dirname(__DIR__) . '/includes/superadmin_header.php';
 require_once dirname(__DIR__) . '/db.php';
 
+// Auto-mark notifications as read when viewing this page
+$current_user = get_auth_user();
+if ($current_user) {
+    db_execute('UPDATE Notification SET isRead = 1 WHERE userId = ? AND isRead = 0', [$current_user['id']]);
+}
+
+// Fetch recent unread notifications for display
+$notifications = [];
+try {
+    $notifications = db_query(
+        'SELECT id, orderId, type, title, message, createdAt
+         FROM Notification WHERE userId = ? ORDER BY createdAt DESC LIMIT 20',
+        [$current_user['id']]
+    );
+} catch (Throwable $e) {}
+
 // Filters
 $filter_user       = $_GET['user']       ?? '';
 $filter_action     = $_GET['action']     ?? '';
@@ -65,6 +81,28 @@ function action_color(string $action): string {
     return '#6b7280';
 }
 ?>
+
+<?php if (!empty($notifications)): ?>
+<!-- Notifications Panel -->
+<div class="sa-card" style="margin-bottom:1.25rem">
+    <div class="sa-card-header">
+        <h2>🔔 Notifications (<?= count($notifications) ?>)</h2>
+        <button class="btn btn-sm btn-primary" onclick="markAllRead()" id="markReadBtn">✓ Mark all read</button>
+    </div>
+    <div style="max-height:300px;overflow-y:auto">
+    <?php foreach ($notifications as $n): ?>
+        <div class="notif-item" style="padding:.6rem .75rem;border-bottom:1px solid #f1f5f9;display:flex;gap:.75rem;align-items:start">
+            <div style="font-size:1.2rem;line-height:1"><?= $n['type'] === 'NEW_ORDER' ? '🆕' : ($n['type'] === 'STOCK_ALERT' ? '⚠️' : ($n['type'] === 'ORDER_STATUS' ? '📦' : '🔔')) ?></div>
+            <div style="flex:1">
+                <strong style="font-size:.85rem"><?= htmlspecialchars($n['title']) ?></strong>
+                <div style="font-size:.78rem;color:#64748b"><?= htmlspecialchars($n['message']) ?></div>
+                <div style="font-size:.7rem;color:#94a3b8;margin-top:.15rem"><?= htmlspecialchars($n['createdAt']) ?></div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- Filters -->
 <form method="GET" style="margin-bottom:1.25rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-end">
@@ -196,14 +234,14 @@ function exportCSV() {
     const rows = [['Time','User','Role','Action','Entity','Details','Restaurant','IP']];
     <?php foreach ($logs as $log): ?>
     rows.push([
-        '<?= addslashes(date('Y-m-d H:i:s', strtotime($log['createdAt']))) ?>',
-        '<?= addslashes($log['userName'] ?? '') ?>',
-        '<?= addslashes($log['userRole'] ?? '') ?>',
-        '<?= addslashes($log['action']) ?>',
-        '<?= addslashes($log['entityType'] ?? '') ?>',
-        '<?= addslashes($log['details'] ?? '') ?>',
-        '<?= addslashes($log['restaurantName'] ?? '') ?>',
-        '<?= addslashes($log['ipAddress'] ?? '') ?>'
+        '<?= str_replace("'", "\\'", date('Y-m-d H:i:s', strtotime($log['createdAt']))) ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['userName'] ?? '') ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['userRole'] ?? '') ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['action']) ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['entityType'] ?? '') ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['details'] ?? '') ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['restaurantName'] ?? '') ?>',
+        '<?= str_replace(["'", "\n", "\r"], ["\\'", "\\n", "\\r"], $log['ipAddress'] ?? '') ?>'
     ]);
     <?php endforeach; ?>
     const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
@@ -212,6 +250,12 @@ function exportCSV() {
     a.href = URL.createObjectURL(blob);
     a.download = 'activity-log-<?= date('Y-m-d') ?>.csv';
     a.click();
+}
+
+function markAllRead() {
+    fetch('/api/notifications/index.php?id=all', {method:'PUT', credentials:'include'})
+        .then(() => { document.querySelector('.notif-panel')?.remove(); })
+        .catch(() => {});
 }
 </script>
 

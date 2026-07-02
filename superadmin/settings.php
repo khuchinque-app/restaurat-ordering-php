@@ -140,8 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem 2rem">
             <div class="color-row">
                 <label>Primary</label>
-                <input type="color" name="primary_color" value="<?= htmlspecialchars($s['primary_color']) ?>" onchange="this.nextElementSibling.value=this.value;updatePreview()">
-                <input type="text" value="<?= htmlspecialchars($s['primary_color']) ?>" onchange="this.previousElementSibling.value=this.value;updatePreview()" readonly>
+                <input type="color" name="primary_color" value="<?= htmlspecialchars($s['primary_color']) ?>">
+                <input type="text" value="<?= htmlspecialchars($s['primary_color']) ?>">
             </div>
             <div class="color-row">
                 <label>Primary Dark</label>
@@ -274,15 +274,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
 
 <script>
 function updatePreview() {
-    const primary = document.querySelector('[name="primary_color"]')?.value || '#f97316';
-    document.getElementById('preview-header').style.borderBottomColor = primary;
+    const p = document.querySelector('[name="primary_color"]')?.value || '#f97316';
+    const pd = document.querySelector('[name="primary_dark"]')?.value || '#ea580c';
+    const bg = document.querySelector('[name="bg_color"]')?.value || '#f9fafb';
+    const card = document.querySelector('[name="card_bg"]')?.value || '#ffffff';
+    const text = document.querySelector('[name="text_color"]')?.value || '#111827';
+    const hbg = document.querySelector('[name="header_bg"]')?.value || '#ffffff';
+    const accent = document.querySelector('[name="accent_color"]')?.value || '#6366f1';
+    const fs = document.querySelector('[name="font_size"]')?.value || '16';
+    const br = document.querySelector('[name="border_radius"]')?.value || '8';
+    const ff = document.querySelector('[name="font_family"]')?.value || 'system-ui, -apple-system, sans-serif';
+    const mode = document.querySelector('[name="theme_mode"]')?.value || 'light';
+
+    const cardEl = document.getElementById('preview-card');
+    const header = document.getElementById('preview-header');
+    const items = document.querySelectorAll('.preview-item');
+    const prices = document.querySelectorAll('.pi-price');
+
+    cardEl.style.background = card;
+    cardEl.style.borderRadius = br + 'px';
+    cardEl.style.color = text;
+    cardEl.style.fontFamily = ff;
+    cardEl.style.fontSize = fs + 'px';
+
+    header.style.background = hbg;
+    header.style.borderBottom = '2px solid ' + p;
+
+    items.forEach(el => {
+        el.style.background = bg;
+        el.style.borderRadius = Math.max(4, parseInt(br) - 2) + 'px';
+        el.style.borderColor = text + '22';
+    });
+    prices.forEach(el => { el.style.color = p; });
+
+    // Update the preview background for dark mode
+    document.querySelector('.preview-menu').style.background = mode === 'dark' ? '#1e293b' : '#f8fafc';
+    document.querySelector('.preview-menu').style.color = mode === 'dark' ? '#e2e8f0' : text;
+
+    document.documentElement.style.setProperty('--primary', p);
 }
+
+// Attach updatePreview to all setting inputs
+document.querySelectorAll('[name]').forEach(el => {
+    if (el.name !== 'restaurant_name' && el.name !== 'restaurant_desc') {
+        el.addEventListener('change', updatePreview);
+        el.addEventListener('input', updatePreview);
+    }
+});
+
+// Sync color inputs with their text display
+document.querySelectorAll('input[type="color"]').forEach(el => {
+    el.addEventListener('input', function() {
+        const next = this.nextElementSibling;
+        if (next && next.type === 'text') next.value = this.value;
+    });
+});
+document.querySelectorAll('input[type="text"]').forEach(el => {
+    if (el.previousElementSibling && el.previousElementSibling.type === 'color') {
+        el.addEventListener('change', function() {
+            this.previousElementSibling.value = this.value;
+        });
+    }
+});
+
+// Name/desc updates
 document.querySelectorAll('[name="restaurant_name"], [name="restaurant_desc"]').forEach(el => {
     el.addEventListener('input', () => {
         document.getElementById('preview-name').textContent = document.querySelector('[name="restaurant_name"]').value || 'Restaurant';
         document.getElementById('preview-desc').textContent = document.querySelector('[name="restaurant_desc"]').value || 'Description';
     });
 });
+
+// Initial preview setup
+updatePreview();
 </script>
 
 <?php include dirname(__DIR__) . '/includes/superadmin_footer.php'; ?>

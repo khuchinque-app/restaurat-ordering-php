@@ -9,7 +9,9 @@ $restaurants = db_query(
             (SELECT COALESCE(SUM(CAST(totalAmount AS REAL)),0) FROM "Order" WHERE restaurantId = r.id AND status IN ("COMPLETED","READY","OUT_FOR_DELIVERY")) AS totalRevenue,
             (SELECT COUNT(*) FROM User WHERE restaurantId = r.id AND role = "CUSTOMER") AS customers,
             (SELECT COUNT(*) FROM User WHERE restaurantId = r.id AND role IN ("ADMIN","MANAGER")) AS admins
-     FROM Restaurant r ORDER BY r.createdAt DESC'
+     FROM Restaurant r
+     WHERE r.isActive = 1
+     ORDER BY r.createdAt DESC'
 );
 ?>
 
