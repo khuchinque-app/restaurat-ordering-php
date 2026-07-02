@@ -1,0 +1,7 @@
+# P2P — Street Food Menu
+# Columns: category , name , price , stock , lowStock , image
+Street Snacks,Burger Classic,2.50,50,5,burger_01.jpg
+Street Snacks,Cheese Fries,1.80,80,10,fries_01.jpg
+Street Snacks,Chicken Nuggets,2.00,60,5,nuggets_01.jpg
+Drinks,Iced Tea,1.00,100,10,drink_01.jpg
+Drinks,Lemonade,1.20,90,10,drink_02.jpg
