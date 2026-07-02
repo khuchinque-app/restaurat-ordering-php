@@ -48,7 +48,7 @@ function saveCart() {
 function addItem(id, name, price, maxStock) {
     const ex = cart.find(i => i.id === id);
     if (ex) {
-        if (ex.qty >= (maxStock || 999)) { toast('Stok tidak mencukupi'); return; }
+        if (ex.qty >= (maxStock || 999)) { toast('Stock not sufficient'); return; }
         ex.qty++;
     } else {
         cart.push({ id, name, price: parseFloat(price), qty: 1, maxStock: parseInt(maxStock) || 999 });
@@ -110,7 +110,7 @@ function renderCartDrawer() {
         body.innerHTML = `
             <div class="drawer-empty">
                 <div class="empty-icon">🛒</div>
-                <div class="empty-title">Keranjang kosong</div>
+                <div class="empty-title">Your cart is empty</div>
                 <div class="empty-desc">Yuk, pilih menu favoritmu!</div>
             </div>`;
         footer.innerHTML = '';
@@ -131,7 +131,7 @@ function renderCartDrawer() {
                 <button class="qty-btn" onclick="changeQty('${i.id}',-1)" aria-label="Decrease">−</button>
                 <span class="qty-val">${i.qty}</span>
                 <button class="qty-btn" onclick="changeQty('${i.id}',1)" aria-label="Increase">+</button>
-                <button class="rm-btn" onclick="removeItem('${i.id}')" title="Hapus" aria-label="Remove">×</button>
+                <button class="rm-btn" onclick="removeItem('${i.id}')" title="Remove" aria-label="Remove">×</button>
             </div>
         </div>`}).join('');
 
@@ -146,7 +146,7 @@ function renderCartDrawer() {
         </div>
         <div class="form-group"><label>Nama Anda</label><input id="cust-name" type="text" placeholder="Nama (opsional)"></div>
         <div class="form-group"><label>Nomor Telepon</label><input id="cust-phone" type="tel" placeholder="Nomor telepon (opsional)"></div>
-        <div class="form-group"><label>Catatan Pesanan</label><textarea id="cust-notes" rows="2" placeholder="Instruksi khusus..."></textarea></div>
+        <div class="form-group"><label>Order Notes</label><textarea id="cust-notes" rows="2" placeholder="Special instructions..."></textarea></div>
         <a href="https://t.me/pempektitilkps" target="_blank" class="telegram-link" onclick="window.open('https://t.me/pempektitilkps')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
             Pesan via Telegram
@@ -238,7 +238,7 @@ async function loadMenu() {
 
 function renderCategories(cats) {
     const wrap = document.getElementById('cat-tabs');
-    wrap.innerHTML = '<button class="cat-tab active" data-cat="all" onclick="filterCat('all',this)">Semua</button>'
+    wrap.innerHTML = '<button class="cat-tab active" data-cat="all" onclick="filterCat('all',this)">All</button>'
         + cats.map(c => `<button class="cat-tab" data-cat="${esc(c.id)}" onclick="filterCat('${esc(c.id)}',this)">${esc(c.name)} <span style="opacity:.5;font-weight:400">(${c.itemCount||0})</span></button>`).join('');
 }
 
@@ -272,7 +272,7 @@ function updateStats(items) {
 function renderItems(items) {
     const grid = document.getElementById('menu-grid');
     if (!items.length) { 
-        grid.innerHTML = '<p style="padding:3rem;color:var(--text-muted);text-align:center;grid-column:1/-1;font-size:0.95rem">Tidak ada menu yang ditemukan.</p>'; 
+        grid.innerHTML = '<p style="padding:3rem;color:var(--text-muted);text-align:center;grid-column:1/-1;font-size:0.95rem">Not ada menu yang ditemukan.</p>'; 
         return; 
     }
     grid.innerHTML = items.map(i => `
@@ -293,7 +293,7 @@ function renderItems(items) {
                     </div>
                     <button class="add-btn" onclick="addItem('${esc(i.id)}','${esc(i.name)}','${esc(i.price)}','${esc(i.stockQuantity ?? 999)}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Tambah
+                        Add to Cart
                     </button>
                 </div>
             </div>
