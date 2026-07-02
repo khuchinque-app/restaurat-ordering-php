@@ -54,7 +54,7 @@ function addItem(id, name, price, maxStock) {
         cart.push({ id, name, price: parseFloat(price), qty: 1, maxStock: parseInt(maxStock) || 999 });
     }
     saveCart();
-    toast('✓ ' + name + ' ditambahkan');
+    toast('✓ Added ' + name);
 }
 
 function removeItem(id)        { cart = cart.filter(i => i.id !== id); saveCart(); }
@@ -144,8 +144,8 @@ function renderCartDrawer() {
             <div class="sum-row"><span>Subtotal</span><span>${fmt(sub)} <span style="font-size:.75rem;color:var(--text-muted)">(${subKhr} KHR)</span></span></div>
             <div class="sum-row sum-total"><span>Total</span><span>${fmt(tot)} <span style="font-size:.8rem;color:var(--text-muted)">(${totKhr} KHR)</span></span></div>
         </div>
-        <div class="form-group"><label>Nama Anda</label><input id="cust-name" type="text" placeholder="Nama (opsional)"></div>
-        <div class="form-group"><label>Nomor Telepon</label><input id="cust-phone" type="tel" placeholder="Nomor telepon (opsional)"></div>
+        <div class="form-group"><label>Your Name</label><input id="cust-name" type="text" placeholder="Name (optional)"></div>
+        <div class="form-group"><label>Phone Number</label><input id="cust-phone" type="tel" placeholder="Phone number (optional)"></div>
         <div class="form-group"><label>Order Notes</label><textarea id="cust-notes" rows="2" placeholder="Special instructions..."></textarea></div>
         <a href="https://t.me/pempektitilkps" target="_blank" class="telegram-link" onclick="window.open('https://t.me/pempektitilkps')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
@@ -188,12 +188,12 @@ async function placeOrder() {
             }).catch(() => {});
             showOrderConfirm(data.data.orderNumber);
         } else {
-            toast(data.error || 'Gagal memesan. Coba lagi.');
+            toast(data.error || 'Order failed. Please try again.');
             btn.disabled = false;
             renderCartDrawer();
         }
     } catch {
-        toast('Kesalahan jaringan. Coba lagi.');
+        toast('Network error. Please try again.');
         btn.disabled = false;
         renderCartDrawer();
     }
@@ -213,7 +213,7 @@ async function loadMenu() {
         const rRes = await fetch(`${API_BASE}/menu/categories.php?restaurant=${RESTAURANT_SLUG}`);
         const rData = await rRes.json();
         if (!rData.success) { 
-            document.getElementById('menu-grid').innerHTML = '<p style="color:var(--text-muted);padding:3rem;text-align:center;grid-column:1/-1">Gagal memuat menu.</p>'; 
+            document.getElementById('menu-grid').innerHTML = '<p style="color:var(--text-muted);padding:3rem;text-align:center;grid-column:1/-1">Failed to load menu.</p>'; 
             return; 
         }
 
@@ -232,14 +232,14 @@ async function loadMenu() {
         renderItems(allItems);
         updateStats(allItems);
     } catch (e) {
-        document.getElementById('menu-grid').innerHTML = '<p style="color:var(--text-muted);padding:3rem;text-align:center;grid-column:1/-1">Gagal memuat menu. Periksa koneksi internet.</p>';
+        document.getElementById('menu-grid').innerHTML = '<p style="color:var(--text-muted);padding:3rem;text-align:center;grid-column:1/-1">Failed to load menu. Check your connection.</p>';
     }
 }
 
 function renderCategories(cats) {
     const wrap = document.getElementById('cat-tabs');
-    wrap.innerHTML = '<button class="cat-tab active" data-cat="all" onclick="filterCat('all',this)">All</button>'
-        + cats.map(c => `<button class="cat-tab" data-cat="${esc(c.id)}" onclick="filterCat('${esc(c.id)}',this)">${esc(c.name)} <span style="opacity:.5;font-weight:400">(${c.itemCount||0})</span></button>`).join('');
+    wrap.innerHTML = '<button class="cat-tab active" data-cat="all" onclick="filterCat(\x27all\x27,this)">All</button>'
+    + cats.map(c => `<button class="cat-tab" data-cat="${esc(c.id)}" onclick="filterCat(\x27${esc(c.id)}\x27,this)">${esc(c.name)} <span style="opacity:.5;font-weight:400">(${c.itemCount||0})</span></button>`).join('');
 }
 
 function filterCat(id, btn) {
@@ -265,7 +265,7 @@ function updateStats(items) {
     const cats = new Set(items.map(i => i.categoryName));
     bar.innerHTML = `
         <span class="stat-chip">🍲 <span>${items.length}</span> menu</span>
-        <span class="stat-chip">📌 <span>${cats.size}</span> kategori</span>
+        <span class="stat-chip">📌 <span>${cats.size}</span> categories</span>
     `;
 }
 
@@ -285,7 +285,7 @@ function renderItems(items) {
             <div class="menu-card-body">
                 <div class="card-name">${esc(i.name)}</div>
                 ${i.description ? `<div class="card-desc">${esc(i.description)}</div>` : ''}
-                ${i.stockQuantity != null && i.stockQuantity <= 5 ? `<div class="stock-warn">⚠ Hanya ${i.stockQuantity} tersisa</div>` : ''}
+                ${i.stockQuantity != null && i.stockQuantity <= 5 ? `<div class="stock-warn">⚠ Only ${i.stockQuantity} left</div>` : ''}
                 <div class="card-footer">
                     <div class="price-group">
                         <span class="price">${fmt(i.price)}</span>
@@ -319,7 +319,7 @@ function getChatCustomerName() {
     }
     chatName = localStorage.getItem('tittil_chat_name');
     if (!chatName) {
-        chatName = 'Tamu ' + Math.random().toString(36).substr(2,4);
+        chatName = 'Guest ' + Math.random().toString(36).substr(2,4);
         localStorage.setItem('tittil_chat_name', chatName);
     }
     return chatName;
