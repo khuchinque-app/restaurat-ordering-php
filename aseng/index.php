@@ -7,8 +7,11 @@
     <meta name="description" content="Authentic Palembang Authentic Asian Flavors. Handcrafted, fresh daily. Order now for delivery.">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/theme.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link" rel="stylesheet">
 </head>
 <body>
 
@@ -93,7 +96,7 @@
         </div>
         <div class="search-wrap">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="search-input" placeholder="Cari menu…" autocomplete="off">
+            <input type="search" id="search-input" placeholder="Search menu…" autocomplete="off">
         </div>
     </div>
 
@@ -138,7 +141,7 @@
     <div class="drawer-header">
         <div class="drawer-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            Your Cart Anda
+            Your Order
         </div>
         <button class="close-btn" onclick="closeCart()" aria-label="Close cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -148,7 +151,7 @@
         <div class="drawer-empty">
             <div class="empty-icon">🛒</div>
             <div class="empty-title">Keranjang kosong</div>
-            <div class="empty-desc">Yuk, pilih menu favoritmu!</div>
+            <div class="empty-desc">Browse the menu and pick your favorites!</div>
         </div>
     </div>
     <div class="drawer-footer" id="cart-footer"></div>
@@ -174,7 +177,7 @@
                 Chat dengan Admin
             </button>
         </div>
-        <button class="confirm-btn ghost" onclick="document.getElementById('order-confirm').classList.remove('open')">Lanjut Belanja</button>
+        <button class="confirm-btn ghost" onclick="document.getElementById('order-confirm').classList.remove('open')">Continue Shopping</button>
     </div>
 </div>
 
@@ -205,12 +208,12 @@
     </div>
     <div class="chat-widget-messages" id="chatMessages">
         <div class="chat-widget-msg theirs">
-            <div class="chat-widget-bubble">Halo! 👋 Selamat datang di Aseng. Ada yang bisa kami bantu?</div>
+            <div class="chat-widget-bubble">Hi there! 👋 Welcome to Aseng. How can we help?</div>
             <div class="chat-widget-time">Just now</div>
         </div>
     </div>
     <div class="chat-widget-input-area">
-        <input type="text" id="chatInput" placeholder="Ketik pesan…" maxlength="500" autocomplete="off">
+        <input type="text" id="chatInput" placeholder="Type a message…" maxlength="500" autocomplete="off">
         <button onclick="sendChatMessage()" aria-label="Send">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
@@ -221,5 +224,22 @@
 <div class="toast" id="toast"></div>
 
 <script src="assets/app.js"></script>
+
+<!-- Bottom Navigation Bar -->
+<nav class="bottom-nav" id="bottomNav">
+    <a href="/aseng/" class="bottom-nav-item active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <button class="bottom-nav-item" onclick="openCart()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    </button>
+    <button class="bottom-nav-item" onclick="toggleChat()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <a href="https://t.me/pempektitilkps" target="_blank" class="bottom-nav-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+</nav>
+
 </body>
 </html>

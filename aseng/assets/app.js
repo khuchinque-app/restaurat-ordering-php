@@ -3,7 +3,7 @@
 // "Tiba Tiba Lapar"
 // =============================================================
 
-const RESTAURANT_SLUG = 'tittil';
+const RESTAURANT_SLUG = 'aseng';
 const API_BASE        = '/api';
 const TAX_RATE        = 0;
 const CART_KEY        = 'cart_' + RESTAURANT_SLUG;
@@ -54,7 +54,7 @@ function addItem(id, name, price, maxStock) {
         cart.push({ id, name, price: parseFloat(price), qty: 1, maxStock: parseInt(maxStock) || 999 });
     }
     saveCart();
-    toast('✓ ' + name + ' ditambahkan');
+    toast('✓ Added ' + name);
 }
 
 function removeItem(id)        { cart = cart.filter(i => i.id !== id); saveCart(); }
@@ -188,12 +188,12 @@ async function placeOrder() {
             }).catch(() => {});
             showOrderConfirm(data.data.orderNumber);
         } else {
-            toast(data.error || 'Gagal memesan. Coba lagi.');
+            toast(data.error || 'Order failed. Please try again.');
             btn.disabled = false;
             renderCartDrawer();
         }
     } catch {
-        toast('Kesalahan jaringan. Coba lagi.');
+        toast('Network error. Please try again.');
         btn.disabled = false;
         renderCartDrawer();
     }
