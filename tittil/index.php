@@ -2,242 +2,191 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Tittil — Pempek & Indonesian Food | Tiba Tiba Lapar</title>
-    <meta name="description" content="Authentic Palembang Pempek & Indonesian Food. Handcrafted, fresh daily. Order now for delivery.">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/theme.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Tittil — tiba-tiba lapar?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/menu-uploads/logo_admin.png?v=3">
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        .bounce-in { animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .dance:hover { animation: dance 0.4s ease infinite; }
+        .float { animation: float 3s ease-in-out infinite; }
+        .glow { box-shadow: 0 0 20px rgba(255,199,0,0.3); }
+        .tg-pulse { animation: tgPulse 0.6s ease 3; }
+        @keyframes bounceIn { 0%{transform:scale(0)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
+        @keyframes dance { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes tgPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05);box-shadow:0 4px 24px rgba(250,204,21,0.6)} }
+        .menu-row { position: relative; overflow: hidden; }
+        .menu-row::after {
+            content: ''; position: absolute; inset: 0; z-index: 0;
+            background-image: var(--bg);
+            background-size: cover; background-position: center;
+            filter: blur(12px); opacity: 0; transition: opacity 0.35s ease;
+        }
+        .menu-row:hover::after, .menu-row:active::after { opacity: 0.2; }
+        .menu-row > * { position: relative; z-index: 1; }
+    </style>
 </head>
-<body>
+<body class="bg-[#F5F0EB] text-[#1A1A1A] font-['Inter',sans-serif] pb-28">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-b border-black/5">
+        <div class="flex items-center justify-between px-5 h-14 max-w-2xl mx-auto">
+            <div class="flex items-center gap-3">
+                <img src="assets/logo-icon.png?v=2" alt="" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none'">
+                <div>
+                    <span class="font-['Playfair_Display',serif] text-xl font-bold">Tittil</span>
+                    <span class="text-[10px] text-[#C49000] block -mt-1">tiba-tiba lapar?</span>
+                </div>
+            </div>
+            <button onclick="openCart()" class="relative w-10 h-10 flex items-center justify-center rounded-full bg-[#F5F0EB] border border-black/5 hover:bg-[#FFC700] transition-all duration-300 float">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <span class="absolute -top-1 -right-1 bg-[#FFC700] text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden bounce-in" id="badge">0</span>
+            </button>
+        </div>
+    </header>
 
-<!-- Splash Screen -->
-<div class="splash" id="splash">
-    <div class="splash-ring">
-        <img src="assets/logo.png" alt="Tittil" class="splash-logo" onerror="this.style.display='none'">
-        <div class="splash-text">TITTIL</div>
-        <div class="splash-tagline">Tiba Tiba Lapar</div>
+    <!-- Hero -->
+    <section class="pt-14 bg-gradient-to-br from-[#0B4D2E] via-[#0D5A36] to-[#1A1A1A] text-white px-5 pb-10 relative overflow-hidden">
+        <div class="absolute top-10 right-0 w-64 h-64 bg-[#FFC700]/5 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-[#FFC700]/5 rounded-full blur-3xl"></div>
+        <div class="max-w-2xl mx-auto pt-8 relative">
+            <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-xs mb-4 backdrop-blur-sm border border-white/10">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                Palembang Authentic
+            </div>
+            <h1 class="font-['Playfair_Display',serif] text-4xl font-bold leading-tight">
+                <span class="inline-block animate-pulse">tiba-tiba</span>
+                <span class="text-[#FFC700] inline-block animate-bounce" style="animation-duration:2s"> lapar?</span>
+            </h1>
+            <p class="text-white/60 text-sm mt-2 max-w-xs">Pempek tenggiri asli, cuco hitam kental, langsung goreng langsung kirim.</p>
+            <div class="flex gap-3 mt-5">
+                <a href="#menu" class="inline-flex items-center gap-2 bg-[#FFC700] text-black font-bold px-6 py-3 rounded-full text-sm hover:scale-105 transition-transform shadow-lg shadow-[#FFC700]/20 glow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    Pesan Sekarang
+                </a>
+                <a href="https://t.me/pempektitilkps" target="_blank" class="inline-flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full text-sm backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    Chat
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu List -->
+    <main class="max-w-2xl mx-auto px-5 -mt-2" id="menu">
+        <div id="menu-list">
+            <div class="text-center py-8 text-[#B0B0B0] text-sm">Loading menu...</div>
+        </div>
+    </main>
+
+    <!-- Cart Drawer -->
+    <div class="fixed inset-0 z-50 invisible" id="cart-drawer">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeCart()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-[#FAF7F4]/60 backdrop-blur-xl rounded-t-3xl h-[92vh] flex flex-col translate-y-full transition-transform duration-500 ease-out shadow-2xl" id="cart-sheet">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-black/5">
+                <span class="font-semibold text-lg flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C49000" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    Your Order
+                </span>
+                <button onclick="closeCart()" class="text-2xl leading-none text-[#8E8E93] hover:text-black transition-colors">×</button>
+            </div>
+            <div class="flex-1 overflow-y-auto px-5 py-4 space-y-2" id="cart-body" style="min-height:120px">
+                <div class="text-center py-10 text-[#8E8E93] text-sm">Your cart is empty</div>
+            </div>
+            <div class="px-5 py-4 border-t border-black/5 space-y-3 bg-[#FAF7F4]/60" id="cart-footer"></div>
+        </div>
     </div>
-</div>
 
-<!-- Header -->
-<header class="site-header" id="siteHeader">
-    <div class="header-inner">
-        <a href="/tittil/" class="logo">
-            <img src="assets/logo.png" alt="Tittil" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-            <span class="logo-icon" style="display:none">🍲</span>
-            <span class="logo-text">Tittil</span>
-        </a>
-        <div class="header-actions">
-            <button class="header-btn" onclick="openCart()" aria-label="Cart">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                <span class="header-badge" id="header-badge" style="display:none">0</span>
+    <!-- Food Drawer -->
+    <div class="fixed inset-0 z-[60] invisible" id="food-drawer">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="food-bg" onclick="closeFoodDrawer()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-[#FAF7F4] rounded-t-3xl translate-y-full transition-transform duration-500 ease-out max-h-[85vh] overflow-y-auto shadow-2xl" id="food-sheet">
+            <div class="w-10 h-1 rounded-full bg-[#B0B0B0]/40 mx-auto mt-3 mb-1"></div>
+            <div class="w-full max-h-[50vh] bg-[#F5F0EB] flex items-center justify-center overflow-hidden">
+                <img id="food-img" src="" alt="" class="w-full h-auto max-h-[50vh] object-contain">
+            </div>
+            <div class="p-5 pb-10">
+                <div class="text-xs uppercase tracking-wider font-semibold text-[#C49000]" id="food-cat"></div>
+                <div class="text-xl font-bold mt-1 font-['Playfair_Display',serif]" id="food-name"></div>
+                <div class="text-lg font-bold text-[#C49000] mt-1" id="food-price"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirm Modal -->
+    <div class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/40 backdrop-blur-sm" id="order-confirm">
+        <div class="bg-white rounded-3xl p-6 mx-4 max-w-md w-full shadow-2xl bounce-in max-h-[90vh] overflow-y-auto">
+            <div class="w-14 h-14 rounded-full bg-[#FFC700] flex items-center justify-center mx-auto mb-3 shadow-lg shadow-[#FFC700]/20">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2 class="text-xl font-bold font-['Playfair_Display',serif] text-[#1A1A1A]">Pesanan Diterima!</h2>
+            <p class="text-xs text-[#8E8E93] mt-1">Order <strong id="confirm-num" class="text-[#C49000]"></strong></p>
+            
+            <!-- Bill breakdown -->
+            <div class="mt-4 pt-4 border-t border-black/5" id="confirm-bill"></div>
+            
+            <p class="text-[10px] text-[#B0B0B0] mt-3">Kami akan siapkan pesananmu segera.</p>
+            <div class="space-y-2 mt-4">
+                <a id="tg-direct" href="https://t.me/pempektitilkps" target="_blank" class="block w-full bg-[#FFC700] text-black font-bold py-3 rounded-full flex items-center justify-center gap-2 hover:scale-105 transition-transform glow text-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    Chat via Telegram
+                </a>
+                <button onclick="document.getElementById('order-confirm').classList.add('hidden')" class="w-full text-sm text-[#8E8E93] py-2 hover:text-black transition-colors">Lanjut Belanja</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl text-black px-5 py-2.5 rounded-full shadow-lg text-sm font-medium z-[80] transition-all duration-300 opacity-0 translate-y-4" id="toast"></div>
+
+    <!-- Chat Bubble -->
+    <button onclick="toggleChat()" class="fixed bottom-20 right-5 z-[55] w-12 h-12 rounded-full bg-white/95 backdrop-blur-xl border border-black/5 shadow-lg flex items-center justify-center hover:bg-[#FFC700] transition-all duration-300 float" id="chat-bubble" aria-label="Chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+
+    <!-- Chat Widget -->
+    <div class="fixed bottom-36 right-5 z-[55] w-80 max-w-[calc(100vw-2rem)] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-black/5 hidden" id="chat-widget">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-black/5">
+            <div class="flex items-center gap-2">
+                <img src="assets/logo-icon.png?v=2" alt="" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none'">
+                <div>
+                    <div class="text-sm font-semibold">Tittil Support</div>
+                    <div class="text-[10px] text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Online</div>
+                </div>
+            </div>
+            <button onclick="toggleChat()" class="text-[#8E8E93] hover:text-black transition-colors">×</button>
+        </div>
+        <div class="h-64 overflow-y-auto px-4 py-3 space-y-3" id="chat-msgs">
+            <div class="flex">
+                <div class="bg-[#F5F0EB] rounded-2xl rounded-bl-sm px-3 py-2 text-sm max-w-[80%]">Hi there! Welcome to Tittil. How can we help?</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-3 border-t border-black/5">
+            <input id="chat-input" type="text" placeholder="Type a message..." maxlength="500" class="flex-1 bg-[#F5F0EB] rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-[#FFC700]/30">
+            <button onclick="sendChatMsg()" class="w-9 h-9 rounded-full bg-[#FFC700] flex items-center justify-center shrink-0 hover:scale-105 transition-transform">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
         </div>
     </div>
-</header>
 
-<!-- Hero -->
-<section class="hero">
-    <div class="hero-bg">
-        <div class="hero-pattern"></div>
-    </div>
-    <div class="hero-content">
-        <div class="hero-badge">
-            <span class="hero-badge-pulse"></span>
-            <span>🍲 Palembang Authentic</span>
-        </div>
-        <h1>
-            <span class="hero-line">Pempek &</span>
-            <span class="hero-line highlight">Indonesian Food</span>
-        </h1>
-        <p class="hero-desc">Handcrafted pempek, hearty Indonesian mains, and refreshing drinks — all made fresh daily with authentic recipes.</p>
-        <div class="hero-cta">
-            <a href="#menu" class="hero-btn primary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                View Menu
-            </a>
-            <a href="https://t.me/pempektitilkps" target="_blank" class="hero-btn ghost">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                Chat on Telegram
-            </a>
-        </div>
-    </div>
-    <div class="hero-wave">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" fill="var(--bg)"/></svg>
-    </div>
-</section>
-
-<!-- Delivery Banner -->
-<div class="delivery-banner" id="menu">
-    <div class="delivery-inner">
-        <div class="delivery-icon">🛵</div>
-        <div class="delivery-text">
-            <strong>Free Delivery</strong> around Kampong Speu area
-        </div>
-        <div class="delivery-time">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            15–30 min
-        </div>
-    </div>
-</div>
-
-<!-- Main -->
-<main class="container">
-
-    <!-- Toolbar -->
-    <div class="toolbar">
-        <div class="cat-tabs" id="cat-tabs">
-            <button class="cat-tab active">Loading…</button>
-        </div>
-        <div class="search-wrap">
-            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="search-input" placeholder="Search menu…" autocomplete="off">
-        </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-bar" id="stats-bar"></div>
-
-    <!-- Menu Grid -->
-    <div class="menu-grid" id="menu-grid">
-        <div class="menu-skeleton">
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-80"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-80"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-80"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div><div class="skeleton-line w-80"></div></div></div>
-        </div>
-    </div>
-</main>
-
-<!-- Footer -->
-<footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <img src="assets/logo.png" alt="Tittil" class="footer-logo" onerror="this.style.display='none'">
+    <script src="assets/app.js?v=7"></script>
+    
+    <!-- Footer -->
+    <footer class="max-w-2xl mx-auto px-5 pb-8 pt-4 mt-6 border-t border-black/5">
+        <div class="flex items-center gap-4 mb-3">
+            <img src="assets/logo-icon.png?v=2" alt="Tittil" class="w-12 h-12 rounded-full object-cover border border-black/10">
             <div>
-                <div class="footer-name">Tittil</div>
-                <div class="footer-tag">Tiba Tiba Lapar</div>
+                <div class="font-['Playfair_Display',serif] text-lg font-bold text-[#1A1A1A]">Tittil</div>
+                <div class="text-[10px] text-[#B0B0B0]">tiba-tiba lapar? · Pempek & Indonesian Food</div>
             </div>
         </div>
-        <div class="footer-links">
-            <a href="https://t.me/pempektitilkps" target="_blank">Telegram</a>
-            <span class="footer-dot">•</span>
-            <span>Kampong Speu, Cambodia</span>
-        </div>
-        <p class="footer-copy">&copy; 2026 Tittil — Pempek & Indonesian Food. All rights reserved.</p>
-    </div>
-</footer>
-
-<!-- Drawer Overlay -->
-<div class="drawer-overlay" id="drawer-overlay"></div>
-
-<!-- Cart Drawer -->
-<div class="cart-drawer" id="cart-drawer">
-    <div class="drawer-header">
-        <div class="drawer-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            Your Order
-        </div>
-        <button class="close-btn" onclick="closeCart()" aria-label="Close cart">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-    </div>
-    <div class="drawer-body" id="cart-body">
-        <div class="drawer-empty">
-            <div class="empty-icon">🛒</div>
-            <div class="empty-title">Your cart is empty</div>
-            <div class="empty-desc">Browse the menu and pick your favorites!</div>
-        </div>
-    </div>
-    <div class="drawer-footer" id="cart-footer"></div>
-</div>
-
-<!-- Order Confirm Modal -->
-<div class="confirm-modal" id="order-confirm">
-    <div class="confirm-box">
-        <div class="confirm-illustration">
-            <div class="confirm-check">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-        </div>
-        <h2>Order Received! 🎉</h2>
-        <p>Pesanan <strong id="confirm-order-num"></strong> has been received. We'll get it ready soon!</p>
-        <div class="confirm-actions">
-            <a href="https://t.me/pempektitilkps" target="_blank" class="confirm-btn telegram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                Chat via Telegram
-            </a>
-            <button class="confirm-btn secondary" onclick="document.getElementById('order-confirm').classList.remove('open');toggleChat()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Chat with Admin
-            </button>
-        </div>
-        <button class="confirm-btn ghost" onclick="document.getElementById('order-confirm').classList.remove('open')">Continue Shopping</button>
-    </div>
-</div>
-
-<!-- Floating Cart Button -->
-<button class="float-cart" id="floatCartBtn" onclick="openCart()" aria-label="Open cart">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-    <span class="float-cart-badge" id="cart-count" style="display:none">0</span>
-</button>
-
-<!-- Chat Bubble -->
-<div class="chat-bubble" id="chatBubble" onclick="toggleChat()" title="Chat with us" aria-label="Chat">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-</div>
-
-<!-- Chat Widget -->
-<div class="chat-widget" id="chatWidget">
-    <div class="chat-widget-header">
-        <div class="chat-widget-avatar">
-            <img src="assets/logo.png" alt="Tittil" onerror="this.style.display='none';this.parentElement.innerHTML='🍲'">
-        </div>
-        <div class="chat-widget-info">
-            <div class="chat-widget-name">Tittil Support</div>
-            <div class="chat-widget-status"><span class="status-dot"></span>Online</div>
-        </div>
-        <button class="chat-close-btn" onclick="toggleChat()" aria-label="Close chat">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-    </div>
-    <div class="chat-widget-messages" id="chatMessages">
-        <div class="chat-widget-msg theirs">
-            <div class="chat-widget-bubble">Hi there! 👋 Welcome to Tittil. How can we help?</div>
-            <div class="chat-widget-time">Just now</div>
-        </div>
-    </div>
-    <div class="chat-widget-input-area">
-        <input type="text" id="chatInput" placeholder="Type a message…" maxlength="500" autocomplete="off">
-        <button onclick="sendChatMessage()" aria-label="Send">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        </button>
-    </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script src="assets/app.js"></script>
-
-<!-- Bottom Navigation Bar -->
-<nav class="bottom-nav" id="bottomNav">
-    <a href="/tittil/" class="bottom-nav-item active">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <button class="bottom-nav-item" onclick="openCart()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-    </button>
-    <button class="bottom-nav-item" onclick="toggleChat()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </button>
-    <a href="https://t.me/pempektitilkps" target="_blank" class="bottom-nav-item">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </a>
-</nav>
-
+        <a href="https://t.me/pempektitilkps" target="_blank" class="inline-flex items-center gap-2 text-sm text-[#8E8E93] hover:text-[#C49000] transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            @pempektitilkps
+        </a>
+    </footer>
 </body>
 </html>

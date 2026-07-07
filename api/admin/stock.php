@@ -7,9 +7,17 @@ $user   = require_admin();
 $method = $_SERVER['REQUEST_METHOD'];
 $slug   = $_GET['restaurant'] ?? DEFAULT_RESTAURANT_SLUG;
 
-$restaurant = get_restaurant($slug);
+$restaurant = db_fetch('SELECT * FROM Restaurant WHERE slug = ?', [$slug]);
 if (!$restaurant) json_error(404, 'Restaurant not found');
 $rid = $restaurant['id'];
+
+// DELETE all stock (reset all to 0)
+if ($method === 'DELETE') {
+    if (!in_array($user['role'], ['SUPERADMIN', 'ADMIN'])) json_error(403, 'Admin access required');
+    db_execute('UPDATE MenuItem SET stockQuantity = 0, isAvailable = 0, updatedAt = datetime("now") WHERE restaurantId = ?', [$rid]);
+    log_activity($user, 'STOCK RESET ALL', 'MenuItem', '', "All stock reset to 0 for {$restaurant['name']}");
+    json_ok(null, 'All stock reset to 0');
+}
 
 if ($method === 'GET') {
     $where  = ['mi.restaurantId = ?'];

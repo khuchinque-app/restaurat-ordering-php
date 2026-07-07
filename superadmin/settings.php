@@ -2,6 +2,7 @@
 $page_title = 'Settings';
 include dirname(__DIR__) . '/includes/superadmin_header.php';
 require_once dirname(__DIR__) . '/db.php';
+require_once dirname(__DIR__) . '/includes/activity.php';
 
 $restaurants = db_query('SELECT id, name, slug FROM Restaurant WHERE isActive = 1 ORDER BY name');
 $slug = $_GET['restaurant'] ?? ($restaurants[0]['slug'] ?? null);
@@ -17,9 +18,9 @@ if ($rid) {
 
 // Defaults
 $defaults = [
-    'primary_color'   => '#f97316',
-    'primary_dark'    => '#ea580c',
-    'bg_color'        => '#f9fafb',
+    'primary_color'   => '#dc2626',
+    'primary_dark'    => '#b91c1c',
+    'bg_color'        => '#e8eaed',
     'card_bg'         => '#ffffff',
     'text_color'      => '#111827',
     'header_bg'       => '#ffffff',
@@ -69,34 +70,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
 ?>
 
 <style>
-.settings-layout { display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start; }
-.settings-section { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:1.25rem; margin-bottom:1.25rem; }
-.settings-section h3 { font-size:.95rem; font-weight:700; margin-bottom:1rem; color:#1e293b; }
+.settings-layout { display:grid; grid-template-columns:1fr 380px; gap:var(--space-6); align-items:start; }
+.settings-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+}
+.settings-section h3 { font-size:.95rem; font-weight:700; margin-bottom:1rem; color:var(--color-text-primary); }
 .color-row { display:flex; gap:.75rem; align-items:center; margin-bottom:.75rem; }
-.color-row label { font-size:.82rem; font-weight:500; min-width:120px; color:#475569; }
-.color-row input[type="color"] { width:40px; height:32px; border:1px solid #d1d5db; border-radius:6px; cursor:pointer; padding:2px; }
-.color-row input[type="text"] { width:100px; font-size:.82rem; font-family:monospace; }
-.setting-input { width:100%; padding:.5rem .75rem; border:1px solid #d1d5db; border-radius:6px; font-size:.875rem; }
-.setting-input:focus { outline:none; border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,.1); }
-.setting-textarea { width:100%; padding:.5rem .75rem; border:1px solid #d1d5db; border-radius:6px; font-size:.875rem; resize:vertical; }
-.preview-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+.color-row label { font-size:.82rem; font-weight:500; min-width:120px; color:var(--color-text-secondary); }
+.color-row input[type="color"] { width:40px; height:32px; border:1px solid var(--color-border); border-radius:var(--radius-sm); cursor:pointer; padding:2px; background:var(--color-surface); }
+.color-row input[type="text"] { width:100px; font-size:.82rem; font-family:var(--font-mono); background:var(--color-surface); color:var(--color-text-primary); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:.25rem .4rem; }
+.setting-input {
+    width:100%; padding:.5rem .75rem;
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-sm);
+    font-size:.875rem;
+    background:var(--color-surface-raised);
+    color:var(--color-text-primary);
+    font-family:var(--font-sans);
+}
+.setting-input:focus { outline:none; border-color:var(--color-accent); box-shadow:0 0 0 3px var(--color-accent-soft); }
+.setting-textarea {
+    width:100%; padding:.5rem .75rem;
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-sm);
+    font-size:.875rem; resize:vertical;
+    background:var(--color-surface-raised);
+    color:var(--color-text-primary);
+}
+
+/* ---- Live Preview ---- */
+.preview-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-xl); overflow:hidden; box-shadow:var(--shadow-lg); }
 .preview-header { padding:1rem 1.25rem; display:flex; align-items:center; gap:.75rem; }
-.preview-menu { padding:.75rem; display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
-.preview-item { background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:.6rem; text-align:center; font-size:.78rem; }
+.preview-menu { padding:.75rem; display:grid; grid-template-columns:1fr 1fr; gap:.5rem; background:var(--color-surface-raised); }
+.preview-item { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:.6rem; text-align:center; font-size:.78rem; }
 .preview-item .pi-icon { font-size:1.5rem; margin-bottom:.2rem; }
-.preview-item .pi-name { font-weight:600; font-size:.8rem; }
-.preview-item .pi-price { color:var(--primary); font-weight:700; }
-.quick-btns { display:flex; gap:.5rem; margin-top:1rem; }
+.preview-item .pi-name { font-weight:600; font-size:.8rem; color:var(--color-text-primary); }
+.preview-item .pi-price { color:var(--color-accent); font-weight:700; }
+.quick-btns { display:flex; gap:.5rem; margin-top:var(--space-4); }
+
+@media (max-width: 1024px) {
+    .settings-layout { grid-template-columns:1fr; }
+}
 </style>
 
 <?php if (!empty($_GET['saved'])): ?>
-<div class="alert alert-success" style="margin-bottom:1rem">✅ Settings saved successfully!</div>
+<div class="alert alert-success">✅ Settings saved successfully!</div>
 <?php endif; ?>
 
 <!-- Restaurant Selector -->
-<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+<div style="display:flex;align-items:center;gap:1rem;margin-bottom:var(--space-6);flex-wrap:wrap">
     <div>
-        <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Restaurant</label>
+        <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Restaurant</label>
         <select onchange="location.href='settings.php?restaurant='+this.value" class="form-control" style="min-width:200px">
             <?php foreach ($restaurants as $r): ?>
             <option value="<?= htmlspecialchars($r['slug']) ?>" <?= $slug === $r['slug'] ? 'selected' : '' ?>>
@@ -124,11 +152,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
         <h3>🏪 Restaurant Info</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Name</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Name</label>
                 <input type="text" name="restaurant_name" class="setting-input" value="<?= htmlspecialchars($s['restaurant_name']) ?>">
             </div>
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Description</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Description</label>
                 <input type="text" name="restaurant_desc" class="setting-input" value="<?= htmlspecialchars($s['restaurant_desc']) ?>">
             </div>
         </div>
@@ -182,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
         <h3>🔤 Typography</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Font Family</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Font Family</label>
                 <select name="font_family" class="setting-input">
                     <?php foreach (['system-ui, -apple-system, sans-serif'=>'System UI','Georgia, serif'=>'Georgia','Arial, sans-serif'=>'Arial','Verdana, sans-serif'=>'Verdana','Courier New, monospace'=>'Courier New'] as $v => $l): ?>
                     <option value="<?= $v ?>" <?= ($s['font_family'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
@@ -190,11 +218,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
                 </select>
             </div>
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Font Size (px)</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Font Size (px)</label>
                 <input type="number" name="font_size" class="setting-input" value="<?= htmlspecialchars($s['font_size'] ?? '16') ?>" min="12" max="24">
             </div>
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Border Radius (px)</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Border Radius (px)</label>
                 <input type="number" name="border_radius" class="setting-input" value="<?= htmlspecialchars($s['border_radius'] ?? '8') ?>" min="0" max="24">
             </div>
         </div>
@@ -205,11 +233,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
         <h3>🖼 Images</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Logo URL</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Logo URL</label>
                 <input type="url" name="logo_url" class="setting-input" value="<?= htmlspecialchars($s['logo_url']) ?>" placeholder="https://...">
             </div>
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Banner/Hero URL</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Banner/Hero URL</label>
                 <input type="url" name="banner_url" class="setting-input" value="<?= htmlspecialchars($s['banner_url']) ?>" placeholder="https://...">
             </div>
         </div>
@@ -220,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
         <h3>💱 Currency & Payment</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Primary Currency</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Primary Currency</label>
                 <select name="currency_primary" class="setting-input">
                     <option value="USD" <?= $s['currency_primary'] === 'USD' ? 'selected' : '' ?>>USD ($)</option>
                     <option value="KHR" <?= $s['currency_primary'] === 'KHR' ? 'selected' : '' ?>>KHR (៛)</option>
@@ -228,11 +256,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
                 </select>
             </div>
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Exchange Rate (KHR per $1)</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Exchange Rate (KHR per $1)</label>
                 <input type="number" name="exchange_rate" class="setting-input" value="<?= htmlspecialchars($s['exchange_rate']) ?>" min="0" step="100">
             </div>
             <div>
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem">Tax Rate (%)</label>
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.25rem;color:var(--color-text-secondary)">Tax Rate (%)</label>
                 <input type="number" name="tax_rate" class="setting-input" value="<?= htmlspecialchars($s['tax_rate']) ?>" min="0" max="100" step="0.5">
             </div>
         </div>
@@ -246,16 +274,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rid) {
 
 <!-- Right: Live Preview -->
 <div>
-    <div style="font-size:.85rem;font-weight:600;color:#64748b;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em">Live Preview</div>
+    <div style="font-size:.85rem;font-weight:600;color:var(--color-text-muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em">Live Preview</div>
     <div class="preview-card" id="preview-card">
-        <div class="preview-header" id="preview-header" style="background:#fff;border-bottom:2px solid #f97316">
+        <div class="preview-header" id="preview-header" style="background:var(--color-surface);border-bottom:2px solid var(--color-accent)">
             <span style="font-size:1.3rem">🍽</span>
             <div>
-                <div style="font-weight:700;font-size:1rem" id="preview-name"><?= htmlspecialchars($s['restaurant_name']) ?></div>
-                <div style="font-size:.75rem;color:#6b7280" id="preview-desc"><?= htmlspecialchars($s['restaurant_desc']) ?></div>
+                <div style="font-weight:700;font-size:1rem;color:var(--color-text-primary)" id="preview-name"><?= htmlspecialchars($s['restaurant_name']) ?></div>
+                <div style="font-size:.75rem;color:var(--color-text-muted)" id="preview-desc"><?= htmlspecialchars($s['restaurant_desc']) ?></div>
             </div>
         </div>
-        <div class="preview-menu">
+        <div class="preview-menu" id="preview-menu">
             <div class="preview-item"><div class="pi-icon">🍔</div><div class="pi-name">Burger</div><div class="pi-price">$10.99</div></div>
             <div class="preview-item"><div class="pi-icon">🍟</div><div class="pi-name">Fries</div><div class="pi-price">$3.99</div></div>
             <div class="preview-item"><div class="pi-icon">🥤</div><div class="pi-name">Drink</div><div class="pi-price">$2.50</div></div>
@@ -290,6 +318,7 @@ function updatePreview() {
     const header = document.getElementById('preview-header');
     const items = document.querySelectorAll('.preview-item');
     const prices = document.querySelectorAll('.pi-price');
+    const menu = document.getElementById('preview-menu');
 
     cardEl.style.background = card;
     cardEl.style.borderRadius = br + 'px';
@@ -307,14 +336,12 @@ function updatePreview() {
     });
     prices.forEach(el => { el.style.color = p; });
 
-    // Update the preview background for dark mode
-    document.querySelector('.preview-menu').style.background = mode === 'dark' ? '#1e293b' : '#f8fafc';
-    document.querySelector('.preview-menu').style.color = mode === 'dark' ? '#e2e8f0' : text;
+    menu.style.background = mode === 'dark' ? '#1e293b' : '#f8fafc';
+    menu.style.color = mode === 'dark' ? '#e2e8f0' : text;
 
     document.documentElement.style.setProperty('--primary', p);
 }
 
-// Attach updatePreview to all setting inputs
 document.querySelectorAll('[name]').forEach(el => {
     if (el.name !== 'restaurant_name' && el.name !== 'restaurant_desc') {
         el.addEventListener('change', updatePreview);
@@ -322,7 +349,6 @@ document.querySelectorAll('[name]').forEach(el => {
     }
 });
 
-// Sync color inputs with their text display
 document.querySelectorAll('input[type="color"]').forEach(el => {
     el.addEventListener('input', function() {
         const next = this.nextElementSibling;
@@ -337,7 +363,6 @@ document.querySelectorAll('input[type="text"]').forEach(el => {
     }
 });
 
-// Name/desc updates
 document.querySelectorAll('[name="restaurant_name"], [name="restaurant_desc"]').forEach(el => {
     el.addEventListener('input', () => {
         document.getElementById('preview-name').textContent = document.querySelector('[name="restaurant_name"]').value || 'Restaurant';
@@ -345,7 +370,6 @@ document.querySelectorAll('[name="restaurant_name"], [name="restaurant_desc"]').
     });
 });
 
-// Initial preview setup
 updatePreview();
 </script>
 

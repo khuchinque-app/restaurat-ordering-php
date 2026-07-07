@@ -5,6 +5,32 @@ require_once dirname(__DIR__, 2) . '/includes/activity.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// DELETE all orders for a restaurant (admin/superadmin only)
+if ($method === 'DELETE') {
+    $user = require_auth();
+    if (!in_array($user['role'], ['SUPERADMIN', 'ADMIN'])) json_error(403, 'Admin access required');
+
+    if (!empty($_GET['all'])) {
+        $slug = $_GET['restaurant'] ?? '';
+        if (!$slug) json_error(400, 'restaurant query param required');
+        $restaurant = db_fetch('SELECT * FROM Restaurant WHERE slug = ?', [$slug]);
+        if (!$restaurant) json_error(404, 'Restaurant not found');
+        $rid = $restaurant['id'];
+
+        db_transaction(function($db) use ($rid) {
+            $db->prepare("DELETE FROM OrderItem WHERE orderId IN (SELECT id FROM \"Order\" WHERE restaurantId = ?)")->execute([$rid]);
+            $db->prepare("DELETE FROM Payment WHERE orderId IN (SELECT id FROM \"Order\" WHERE restaurantId = ?)")->execute([$rid]);
+            $db->prepare("DELETE FROM Notification WHERE orderId IN (SELECT id FROM \"Order\" WHERE restaurantId = ?)")->execute([$rid]);
+            $db->prepare("DELETE FROM ChatRoom WHERE orderId IN (SELECT id FROM \"Order\" WHERE restaurantId = ?)")->execute([$rid]);
+            $db->prepare("DELETE FROM \"Order\" WHERE restaurantId = ?")->execute([$rid]);
+        });
+
+        log_activity($user, 'DELETE ALL ORDERS', 'Order', '', "All orders deleted for {$restaurant['name']}");
+        json_ok(null, 'All orders deleted');
+    }
+    json_error(400, 'Missing ?all=1&restaurant=SLUG');
+}
+
 if ($method === 'GET') {
     $user = get_auth_user();
 
@@ -19,6 +45,7 @@ if ($method === 'GET') {
             'SELECT oi.*, mi.name AS itemName FROM OrderItem oi JOIN MenuItem mi ON mi.id = oi.menuItemId WHERE oi.orderId = ?',
             [$order['id']]
         );
+        $order['payment'] = db_fetch('SELECT * FROM Payment WHERE orderId = ?', [$order['id']]);
         json_ok($order);
     }
 
@@ -101,6 +128,8 @@ if ($method === 'POST') {
     $current_user = get_auth_user();
     $order_id     = new_id();
     $order_number = new_order_number();
+    $payment_type = strtoupper($body['paymentType'] ?? 'CASH');
+    if (!in_array($payment_type, ['CASH', 'ABA'])) $payment_type = 'CASH';
 
     // Include tax in the stored total to match what the customer sees
     $tax_amount    = round($subtotal * TAX_RATE, 2);
@@ -108,7 +137,7 @@ if ($method === 'POST') {
 
     db_transaction(function ($db) use (
         $order_id, $order_number, $total_amount, $item_count, $body, $current_user,
-        $restaurant_id, $order_items
+        $restaurant_id, $order_items, $payment_type
     ) {
         $db->prepare(
             'INSERT INTO "Order" (id, orderNumber, status, totalAmount, itemCount, notes,
@@ -123,6 +152,13 @@ if ($method === 'POST') {
             $current_user['id'] ?? null,
             $restaurant_id,
         ]);
+
+        // Create Payment record
+        $payment_id = new_id();
+        $db->prepare(
+            'INSERT INTO Payment (id, orderId, method, amount, currency, status, createdAt, updatedAt)
+             VALUES (?, ?, ?, ?, "USD", "PENDING", datetime("now"), datetime("now"))'
+        )->execute([$payment_id, $order_id, $payment_type, (string)$total_amount]);
 
         foreach ($order_items as $oi) {
             $item_id = new_id();

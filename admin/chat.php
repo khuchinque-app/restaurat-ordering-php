@@ -494,7 +494,7 @@ if (CHAT_TAB === 'customers') {
     notifTimer = setInterval(pollAllCustomerMessages, 5000);
     pollCustomerPresence();
     presencePollTimer = setInterval(pollCustomerPresence, 5000);
-    const tb = document.querySelector('.admin-topbar');
+    const tb = document.querySelector('.sa-topbar, .admin-header, .sidebar-header, .page-title');
     if (tb) {
         const btn = document.createElement('button');
         btn.id = 'soundToggle'; btn.innerHTML = '🔔'; btn.title = 'Toggle sound';

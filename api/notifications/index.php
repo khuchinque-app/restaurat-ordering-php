@@ -70,4 +70,24 @@ if ($method === 'PUT') {
     }
 }
 
+if ($method === 'DELETE') {
+    if (!empty($_GET['all'])) {
+        $slug = $_GET['restaurant'] ?? '';
+        if ($slug) {
+            // Delete notifications for orders belonging to this restaurant
+            $restaurant = db_fetch('SELECT id FROM Restaurant WHERE slug = ?', [$slug]);
+            if ($restaurant) {
+                db_execute(
+                    'DELETE FROM Notification WHERE orderId IN (SELECT id FROM "Order" WHERE restaurantId = ?)',
+                    [$restaurant['id']]
+                );
+            }
+        }
+        // Also clear the current user's notifications
+        db_execute('DELETE FROM Notification WHERE userId = ?', [$user['id']]);
+        json_ok(null, 'Notifications cleared');
+    }
+    json_error(400, 'Missing parameters');
+}
+
 json_error(405, 'Method not allowed');

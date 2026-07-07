@@ -1,0 +1,60 @@
+1|[x]
+
+### SPECIAL MENU
+
+[x] * Kapal selam  14.000 / $3.5
+[x] * Selam Telur Bebek  16.000 / $4
+[x] * Lenggang Ayam  12.000 / $3
+[x] * Lenggang Bebek  14.000 / $3.5
+[x] * Rujak Mie  12.000 / $3
+[x] * Tekwan  12.000 / $3
+[x] * Tekwan Model Ikan  14.000 / $3.5
+[x] * Model Ikan  12.000 / $3
+[x] * Laksan  14.000 / $3.5
+[x] * Celimpungan  14.000 / $3.5
+[x] * Campur  25.000 / $6.25
+[x] * Campur Komplit  32.000 / $8
+
+### MENU PER PORSI (1 box isi 5pcs)
+
+[x] * Pempek Lenjer/Iris  14.000 / $3.5
+[x] * Pempek Lenjer Kecil  14.000 / $3.5
+[x] * Pempek Adaaan/Bulat  14.000 / $3.5
+[x] * Pempek Keriting  14.000 / $3.5
+[x] * Pempek Cerewet/Belah  14.000 / $3.5
+[x] * Pempek Tahu  14.000 / $3.5
+[x] * Pempek Telur Kecil  14.000 / $3.5
+[x] * Pempek Pistel  14.000 / $3.5
+
+### TAMBAHAN PER PCS
+
+[x] * Pempek Lenjer/Iris  3.000 / $0.75
+[x] * Pempek Lenjer Kecil  3.000 / $0.75
+[x] * Pempek Adaaan/Bulat  3.000 / $0.75
+[x] * Pempek Keriting  3.000 / $0.75
+[x] * Pempek Cerewet  3.000 / $0.75
+[x] * Pempek Tahu  3.000 / $0.75
+[x] * Pempek Telur Kecil  3.000 / $0.75
+[x] * Pempek Pistel  3.000 / $0.75
+
+### MENU BARU
+
+[x] * Model Telur Puyuh  14.000 / $3.5
+[x] * Model Ikan telur Puyuh  18.000 / $4.5
+[x] * Sate Kukus  14.000 / $3.5
+[x] * Lenggang Panggang  16.000 / $4
+
+### MENU TAMBAHAN
+
+[x] * NASI  2.000 / $0.50
+[x] * Cuko/Cup  2.000 / $0.50
+[x] * INDOMIE (Mie Goreng / Soto / Kari)  3.000 / $0.75
+
+
+There are a total of 35 items listed :
+
+Special Menu: 12 item
+Menu Per Porsi: 8 items
+Tambahan Per Pcs: 8 items
+Menu Baru: 4 items
+Menu Tambahan: 3 items

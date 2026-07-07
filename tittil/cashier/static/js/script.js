@@ -1506,16 +1506,18 @@ function moveToFinished(id) {
     updateButtonsForContainer(item);
     saveData();
     updateTotals();
-    // Report for accounting
-    const orderNo = item.dataset.orderNo || item.querySelector('.order-no')?.textContent || '';
-    const name = item.querySelector('.customer-name')?.textContent || '';
-    const address = item.querySelector('.address')?.textContent || '';
+    // Report for accounting — send full receipt data to DB
+    const orderNo = item.dataset.orderNo || '';
+    const name = item.dataset.customerName || '';
+    const address = item.dataset.customerAddress || '';
     const total = parseFloat(item.dataset.total) || 0;
     const isAba = item.classList.contains('archived');
+    const plainText = item.dataset.plainText || '';
+    const htmlContent = item.dataset.htmlContent || '';
     fetch('./static/js/api.php?action=save_finished_order', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({orderNo, customerName: name, address, total, isAba})
+        body: JSON.stringify({orderNo, customerName: name, address, total, isAba, plainText, htmlContent})
     }).catch(() => {});
 }
 
@@ -1878,6 +1880,7 @@ function deleteAllFinishedOrders() {
         const customerName  = item.dataset.customerName  || '';
         const customerAddress = item.dataset.customerAddress || '';
         reportAdminAction("DELETED_BILL", orderNo, total, customerName, customerAddress);
+        archiveDeletedItem(item);  // save full receipt to DB before removing
         performDelete(id);
     });
 }

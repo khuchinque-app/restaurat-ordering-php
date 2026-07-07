@@ -2,7 +2,7 @@
 require_once dirname(__DIR__) . '/auth.php';
 session_init();
 $current_user = get_auth_user();
-if (!$current_user || $current_user['role'] !== 'SUPERADMIN') {
+if (!$current_user || !in_array($current_user['role'], ['SUPERADMIN', 'ADMIN'])) {
     header('Location: ' . APP_URL . '/index.php');
     exit;
 }
@@ -14,26 +14,29 @@ $current_path = $_SERVER['REQUEST_URI'] ?? '/';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title ?? 'Superadmin') ?> &mdash; Superadmin Panel</title>
-    <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/design-system.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/superadmin.css">
 </head>
 <body class="sa-body">
 <div class="sa-layout">
 
 <aside class="sa-sidebar">
-    <div class="sa-logo">&#9733; Superadmin</div>
+    <div class="sa-logo">
+        <img src="<?= APP_URL ?>/menu-uploads/logo_admin.png?v=2" alt="">
+        Superadmin
+    </div>
     <nav class="sa-nav">
-        <a href="<?= APP_URL ?>/superadmin/index.php"         class="<?= strpos($current_path, 'superadmin/index') !== false ? 'active' : '' ?>">&#128202; Dashboard <span id="badgeDashboard" class="nav-badge" style="display:none">0</span></a>
-        <a href="<?= APP_URL ?>/superadmin/checkout.php"      class="<?= strpos($current_path, 'superadmin/checkout') !== false ? 'active' : '' ?>">&#128230; Live Orders <span id="badgeOrders" class="nav-badge" style="display:none">0</span></a>
-        <a href="<?= APP_URL ?>/superadmin/menu.php"          class="<?= strpos($current_path, 'superadmin/menu') !== false ? 'active' : '' ?>">&#127860; Menu <span id="badgeMenu" class="nav-badge" style="display:none">0</span></a>
-        <a href="<?= APP_URL ?>/superadmin/stock.php"         class="<?= strpos($current_path, 'superadmin/stock') !== false ? 'active' : '' ?>">&#128230; Stock <span id="badgeStock" class="nav-badge" style="display:none">0</span></a>
+        <a href="<?= APP_URL ?>/superadmin/index.php"         class="<?= strpos($current_path, 'superadmin/index') !== false ? 'active' : '' ?>">&#128202; Dashboard</a>
+        <a href="<?= APP_URL ?>/superadmin/checkout.php"      class="<?= strpos($current_path, 'superadmin/checkout') !== false ? 'active' : '' ?>">&#128230; Live Orders</a>
+        <a href="<?= APP_URL ?>/superadmin/menu.php"          class="<?= strpos($current_path, 'superadmin/menu') !== false ? 'active' : '' ?>">&#127860; Menu</a>
+        <a href="<?= APP_URL ?>/superadmin/stock.php"         class="<?= strpos($current_path, 'superadmin/stock') !== false ? 'active' : '' ?>">&#128230; Stock</a>
         <a href="<?= APP_URL ?>/superadmin/users.php"         class="<?= strpos($current_path, 'superadmin/users') !== false ? 'active' : '' ?>">&#128100; Users</a>
-        <a href="<?= APP_URL ?>/superadmin/restaurants.php"   class="<?= strpos($current_path, 'superadmin/restaurants') !== false ? 'active' : '' ?>">&#127974; Restaurants</a>
         <hr>
         <a href="<?= APP_URL ?>/superadmin/accounting.php"    class="<?= strpos($current_path, 'superadmin/accounting') !== false ? 'active' : '' ?>">&#128176; Accounting</a>
-        <a href="<?= APP_URL ?>/superadmin/activity.php"      class="<?= strpos($current_path, 'superadmin/activity') !== false ? 'active' : '' ?>">&#128203; History</a>
-        <a href="<?= APP_URL ?>/superadmin/chat.php"          class="<?= strpos($current_path, 'superadmin/chat') !== false ? 'active' : '' ?>" id="chatNavLink">&#128172; Chat <span id="badgeChat" class="nav-badge" style="display:none">0</span></a>
-        <a href="<?= APP_URL ?>/superadmin/activity.php"      class="<?= strpos($current_path, 'superadmin/activity') !== false ? 'active' : '' ?>" id="notifNavLink">&#128276; Alerts <span id="badgeAlerts" class="nav-badge" style="display:none">0</span></a>
+        <a href="<?= APP_URL ?>/superadmin/activity.php"      class="<?= strpos($current_path, 'superadmin/activity') !== false ? 'active' : '' ?>">&#128203; History <span id="notifUnreadBadge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;font-size:.7rem;padding:.05rem .4rem;margin-left:.2rem">0</span></a>
         <a href="<?= APP_URL ?>/superadmin/settings.php"      class="<?= strpos($current_path, 'superadmin/settings') !== false ? 'active' : '' ?>">&#9881; Settings</a>
         <hr>
         <?php require_once dirname(__DIR__) . '/includes/storefronts.php'; render_storefront_nav(); ?>
@@ -52,77 +55,54 @@ $current_path = $_SERVER['REQUEST_URI'] ?? '/';
 
 <div class="sa-main">
     <header class="sa-topbar">
-        <h1><?= htmlspecialchars($page_title ?? 'Dashboard') ?></h1>
+        <div style="display:flex;align-items:center;gap:var(--space-4)">
+            <button class="sa-hamburger" onclick="document.querySelector('.sa-sidebar').classList.toggle('open')" aria-label="Menu" style="display:none;width:40px;height:40px;align-items:center;justify-content:center;border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-border);color:var(--color-text-secondary);cursor:pointer;font-size:18px">☰</button>
+            <h1><?= htmlspecialchars($page_title ?? 'Dashboard') ?></h1>
+        </div>
         <div class="sa-topbar-right">
-            <span>&#128100; <?= htmlspecialchars($current_user['email']) ?></span>
+            <span>👤 <?= htmlspecialchars($current_user['email']) ?></span>
         </div>
     </header>
     <div class="sa-content">
-<style>
-.nav-badge { display:inline-block; background:#ef4444; color:#fff; border-radius:10px; font-size:.65rem; font-weight:700; padding:.05rem .4rem; margin-left:.2rem; vertical-align:middle; line-height:1.4; min-width:18px; text-align:center; }
-.nav-badge.orange { background:#f59e0b; }
-.nav-badge.green { background:#10b981; }
-</style>
 <script>
-// ── Unified unread badge poll ──────────────────────
-(function pollAllBadges() {
-    fetch('<?= APP_URL ?>/api/unread-counts.php', {credentials:'include'})
+// Unread notification badge poll
+(function pollNotifs() {
+    fetch('<?= APP_URL ?>/api/notifications/index.php', {credentials:'include'})
         .then(r => r.json()).then(d => {
-            if (!d.success) return;
-            const data = d.data;
-            
-            // Helper: set badge
-            // Detect current page to hide its badge
-            const pageMap = {
-                badgeDashboard: 'index',
-                badgeOrders: 'checkout',
-                badgeChat: 'chat',
-                badgeAlerts: 'activity',
-                badgeStock: 'stock',
-                badgeMenu: 'menu'
-            };
-            const currentPath = window.location.pathname;
-            
-            function setBadge(id, count, cls) {
-                const el = document.getElementById(id);
-                if (!el) return;
-                // Hide badge if user is already ON that page
-                const relatedPath = pageMap[id];
-                if (relatedPath && currentPath.includes(relatedPath)) {
-                    el.style.display = 'none';
-                    return;
+            if (d.success) {
+                const n = d.data.unreadCount || 0;
+                const b = document.getElementById('notifUnreadBadge');
+                if (b) { 
+                    b.textContent = n; 
+                    b.style.display = n > 0 ? 'inline' : 'none';
+                    // Click badge to mark all as read
+                    b.onclick = async function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        await fetch('<?= APP_URL ?>/api/notifications/index.php?all=1', {method:'PUT', credentials:'include'});
+                        b.style.display = 'none';
+                        b.textContent = '0';
+                        sessionStorage.setItem('notifCount', '0');
+                    };
                 }
-                if (count > 0) {
-                    el.textContent = count;
-                    el.style.display = 'inline-block';
-                    if (cls) el.className = 'nav-badge ' + cls;
-                    else el.className = 'nav-badge';
+                // Browser notification for new alerts
+                if (n > 0) {
+                    const last = parseInt(sessionStorage.getItem('notifCount') || '0');
+                    if (last > 0 && n > last && d.data.notifications && d.data.notifications[0]) {
+                        const notif = d.data.notifications[0];
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification(notif.title, { body: notif.message, icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔔</text></svg>' });
+                        }
+                    }
+                    sessionStorage.setItem('notifCount', String(n));
                 } else {
-                    el.style.display = 'none';
+                    sessionStorage.setItem('notifCount', '0');
                 }
             }
-            
-            setBadge('badgeDashboard', data.total_unread);
-            setBadge('badgeOrders', data.pending_orders, 'orange');
-            setBadge('badgeChat', data.unread_customer_chat);
-            setBadge('badgeAlerts', data.unread_notifs);
-            
-            // Stock: sum of low stock + out of stock
-            const stockIssues = data.low_stock + data.out_of_stock;
-            setBadge('badgeStock', stockIssues, 'orange');
-            setBadge('badgeMenu', data.low_stock, 'orange');
-            
-            // Browser notification for new chat messages
-            const lastChat = sessionStorage.getItem('lastChatUnread') || '0';
-            if (data.unread_customer_chat > parseInt(lastChat) && data.unread_customer_chat > 0) {
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification('💬 New Chat Message', { body: data.unread_customer_chat + ' unread message(s)', icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>' });
-                }
-            }
-            sessionStorage.setItem('lastChatUnread', String(data.unread_customer_chat));
         }).catch(()=>{});
-    setTimeout(pollAllBadges, 10000);
+    setTimeout(pollNotifs, 10000);
 })();
+
 // Request browser notification permission
 if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
